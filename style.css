@@ -1,0 +1,91 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100%;
+    /* Ensure full height */
+    width: 100%;
+}
+
+#game-container {
+    position: fixed;
+    /* Fixed to viewport */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    /* Remove max-width/max-height restriction to fill screen or center if needed ? */
+    /* User wants it to work on mobile, often full screen is best there. */
+    /* But on desktop we want it centered... */
+    /* Better: Keep max-width, center it */
+    max-width: 450px;
+    margin: 0 auto;
+    /* Center horizontally */
+
+    height: 100%;
+    /* max-height removed to ensure it fills vertical space on all devices */
+
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ... existing ui-layer ... */
+
+canvas {
+    display: block;
+    width: 100%;
+    flex: 1;
+    /* Take remaining vertical space */
+    touch-action: none;
+}
+
+#evolution-legend {
+    height: 60px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    padding: 0 10px;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    z-index: 20;
+    flex-shrink: 0;
+    /* Prevent squashing */
+}
+
+#evolution-legend::-webkit-scrollbar {
+    height: 4px;
+}
+
+#evolution-legend::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.legend-circle {
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-right: 5px;
+}
+
+.legend-arrow {
+    color: #999;
+    font-size: 12px;
+}

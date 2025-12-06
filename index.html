@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Circle Merge Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="ui-layer">
+            <div id="score-board">Score: <span id="score">0</span></div>
+            <div id="next-circle-container">
+                <span>Next:</span>
+                <div id="next-circle-preview"></div>
+            </div>
+        </div>
+        <canvas id="game-canvas"></canvas>
+        <div id="evolution-legend">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
