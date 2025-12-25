@@ -33,6 +33,7 @@ let nextCircleType = 'normal'; // 'normal' | 'special'
 let isInteracting = false;
 let currentCircleBody = null;
 let gameOver = false;
+let resizeTimeout = null;
 
 function init() {
     const container = document.getElementById('game-container');
@@ -263,8 +264,6 @@ function attemptMerge(bodyA, bodyB) {
 function createCircle(x, y, index, isStatic) {
     const config = CIRCLES[index] || CIRCLES[CIRCLES.length - 1];
 
-    // Increase density slightly for larger circles to make them feel 'heavier'
-    // Default is 0.001. We scale it up a bit based on index.
     const density = 0.001 + (index * 0.0005);
 
     const body = Bodies.circle(x, y, config.radius, {
@@ -276,19 +275,19 @@ function createCircle(x, y, index, isStatic) {
         },
         restitution: CONFIG.PHYSICS.restitution,
         friction: 0.1,
-        density: density // Heavier as they grow
+        density: density
     });
 
     body.circleIndex = index;
-    body.circleType = 'normal'; // Default
+    body.circleType = 'normal';
+    body.circleRadius = config.radius; // ✅ 추가
 
     return body;
 }
 
 function createSpecialCircle(x, y, isStatic) {
     // Special is small, like index 0 size
-    body.circleRadius = config.radius;
-    const radius = currentCircleBody.circleRadius || CIRCLES[nextCircleIndex]?.radius || 15;
+    const radius = CIRCLES[0].radius;
 
     const body = Bodies.circle(x, y, radius, {
         isStatic: isStatic,
@@ -302,6 +301,7 @@ function createSpecialCircle(x, y, isStatic) {
 
     body.circleIndex = 0; // Dummy index
     body.circleType = 'special';
+    body.circleRadius = radius; // ✅ body 생성 후 속성 추가
 
     return body;
 }
