@@ -9,10 +9,9 @@ body {
     overflow: hidden;
     background-color: #f0f2f5;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+        width: 100vw;
     position: fixed;
-    /* Prevent bouncy scroll on iOS */
     top: 0;
     left: 0;
 }
@@ -20,20 +19,14 @@ body {
 #game-container {
     position: fixed;
     top: 0;
-    left: 0;
-    /* Fallback */
     left: 50%;
     transform: translateX(-50%);
-
     width: 100%;
     max-width: 450px;
-    height: 100%;
-
+    height: 100vh;
     background-color: #fff;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
 #ui-layer {
@@ -41,19 +34,18 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 10px 20px;
-    padding-top: max(10px, env(safe-area-inset-top));
-    /* Safe area top */
+    padding: 8px 15px;
+        padding-top: max(8px, env(safe-area-inset-top));
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 10;
+    z-index: 100;
     pointer-events: none;
 }
 
 #score-board {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 800;
     color: #333;
     text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
@@ -63,67 +55,95 @@ body {
     display: flex;
     align-items: center;
     background: rgba(255, 255, 255, 0.9);
-    padding: 6px 12px;
+    padding: 4px 10px;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(5px);
 }
 
 #next-circle-container span {
-    margin-right: 8px;
+    margin-right: 6px;
     font-weight: 600;
     color: #555;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 #next-circle-preview {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+        height: 26px;
     border-radius: 50%;
     background-color: #ccc;
     display: inline-block;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
+/* 스코어 바 */
+#score-bar-container {
+    position: absolute;
+    top: 45px;
+    left: 15px;
+    right: 15px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 99;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#score-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A, #CDDC39);
+    width: 0%;
+    transition: width 0.3s ease-out;
+    border-radius: 10px;
+}
+
+#score-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #333;
+    font-weight: 700;
+    font-size: 10px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1;
+}
 canvas {
-    display: block;
+    position: absolute;
+        top: 0;
+        left: 0;
     width: 100%;
-    flex: 1;
-    /* Takes all remaining space */
+    height: 100%;
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
 }
 
 #evolution-legend {
+    position: absolute;
+        bottom: 0;
+        left: 0;
     width: 100%;
-    /* Min-height ensures it's always visible */
     min-height: 70px;
-
-    /* Layout */
     display: flex;
     align-items: center;
-
-    /* Scroll */
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
-
-    /* Styling */
     background-color: #f8f9fa;
     border-top: 1px solid #e9ecef;
-
-    /* Padding */
     padding: 10px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
-    /* Critical for iPhone X+ */
-
-    z-index: 20;
-    flex-shrink: 0;
-    /* Prevent collapsing */
+    z-index: 101;
 }
 
-/* Hide scrollbar but keep functionality */
 #evolution-legend::-webkit-scrollbar {
     height: 0px;
     background: transparent;

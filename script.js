@@ -8,7 +8,8 @@ const CONFIG = {
         restitution: 0.6 // Bouncy!
     },
     DEADLINE_Y: 150,
-    LEGEND_HEIGHT: 60 // Must match CSS
+    LEGEND_HEIGHT: 60, // Must match CSS
+    SCORE_MILESTONES: [0, 500, 1000, 2000, 5000, 10000, 20000, 50000]
 };
 
 // Circle Definitions
@@ -266,6 +267,9 @@ function createCircle(x, y, index, isStatic) {
 
     const density = 0.001 + (index * 0.0005);
 
+    const restitutionMultiplier = index < 3 ? 0.35 : 1.0;
+    const restitution = CONFIG.PHYSICS.restitution * restitutionMultiplier;
+
     const body = Bodies.circle(x, y, config.radius, {
         isStatic: isStatic,
         render: {
@@ -273,7 +277,7 @@ function createCircle(x, y, index, isStatic) {
             strokeStyle: '#222',
             lineWidth: 1
         },
-        restitution: CONFIG.PHYSICS.restitution,
+        restitution: restitution,
         friction: 0.1,
         density: density
     });
@@ -348,6 +352,41 @@ function updateUI() {
         nextPreview.style.background = CIRCLES[nextCircleIndex].color;
     }
     document.getElementById('score').innerText = currentScore;
+
+    updateScoreBar();
+}
+
+function updateScoreBar() {
+    const scoreBarFill = document.getElementById('score-bar-fill');
+    const scoreBarText = document.getElementById('score-bar-text');
+
+    if (!scoreBarFill || !scoreBarText) return;
+
+    // 현재 마일스톤 찾기
+    let currentMilestone = 0;
+    let nextMilestone = CONFIG.SCORE_MILESTONES[1];
+
+    for (let i = 0; i < CONFIG.SCORE_MILESTONES.length - 1; i++) {
+        if (currentScore >= CONFIG.SCORE_MILESTONES[i] &&
+            currentScore < CONFIG.SCORE_MILESTONES[i + 1]) {
+            currentMilestone = CONFIG.SCORE_MILESTONES[i];
+            nextMilestone = CONFIG.SCORE_MILESTONES[i + 1];
+            break;
+        }
+    }
+
+    // 마지막 마일스톤 넘은 경우
+    if (currentScore >= CONFIG.SCORE_MILESTONES[CONFIG.SCORE_MILESTONES.length - 1]) {
+        currentMilestone = CONFIG.SCORE_MILESTONES[CONFIG.SCORE_MILESTONES.length - 1];
+        nextMilestone = currentMilestone * 2;
+    }
+
+    // 진행률 계산
+    const progress = ((currentScore - currentMilestone) / (nextMilestone - currentMilestone)) * 100;
+    scoreBarFill.style.width = Math.min(100, progress) + '%';
+
+    // 텍스트 업데이트
+    scoreBarText.innerText = `${currentScore} / ${nextMilestone}`;
 }
 
 function setupInputs(container) {
