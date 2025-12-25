@@ -14,16 +14,16 @@ const CONFIG = {
 
 // Circle Definitions
 const CIRCLES = [
-    { radius: 15, color: '#FFD700', score: 10 },
-    { radius: 25, color: '#FF6347', score: 20 },
-    { radius: 35, color: '#9370DB', score: 40 },
-    { radius: 45, color: '#1E90FF', score: 80 },
-    { radius: 60, color: '#32CD32', score: 160 },
-    { radius: 75, color: '#FF4500', score: 320 },
-    { radius: 90, color: '#FFD700', score: 640 },
-    { radius: 110, color: '#C71585', score: 1280 },
-    { radius: 130, color: '#8A2BE2', score: 2560 },
-    { radius: 150, color: '#00FA9A', score: 5120 }
+    { radius: 11, color: '#FFD700', score: 10 },      // 15 * 0.75
+    { radius: 19, color: '#FF6347', score: 20 },      // 25 * 0.75
+    { radius: 26, color: '#9370DB', score: 40 },      // 35 * 0.75
+    { radius: 34, color: '#1E90FF', score: 80 },      // 45 * 0.75
+    { radius: 45, color: '#32CD32', score: 160 },     // 60 * 0.75
+    { radius: 56, color: '#FF4500', score: 320 },     // 75 * 0.75
+    { radius: 68, color: '#FFD700', score: 640 },     // 90 * 0.75
+    { radius: 83, color: '#C71585', score: 1280 },    // 110 * 0.75
+    { radius: 98, color: '#8A2BE2', score: 2560 },    // 130 * 0.75
+    { radius: 113, color: '#00FA9A', score: 5120 }    // 150 * 0.75
 ];
 
 // State
@@ -335,9 +335,9 @@ function spawnCurrentCircle(x) {
 
     let body;
     if (nextCircleType === 'special') {
-        body = createSpecialCircle(x, 50, true);
+        body = createSpecialCircle(x, 90, true);
     } else {
-        body = createCircle(x, 50, nextCircleIndex, true);
+        body = createCircle(x, 90, nextCircleIndex, true);
     }
 
     currentCircleBody = body;
@@ -400,7 +400,7 @@ function setupInputs(container) {
         const minX = radius;
         x = Math.max(minX, Math.min(x, maxX));
 
-        Body.setPosition(currentCircleBody, { x: x, y: 50 });
+        Body.setPosition(currentCircleBody, { x: x, y: 90 });
     };
 
     const drop = () => {
