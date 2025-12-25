@@ -119,7 +119,34 @@ function init() {
     setupInputs(container);
     prepareNextTurn();
 
-    window.addEventListener('resize', () => location.reload());
+    const handleResize = () => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            cleanup();
+            location.reload();
+        }, 300); // 300ms 디바운스
+    };
+
+    window.addEventListener('resize', handleResize);
+}
+
+// 정리 함수 추가
+function cleanup() {
+    if (engine) {
+        Events.off(engine, 'collisionStart');
+        Events.off(engine, 'afterUpdate');
+        Engine.clear(engine);
+    }
+    if (render) {
+        Events.off(render, 'afterRender');
+        Render.stop(render);
+        render.canvas.remove();
+        render.canvas = null;
+        render.context = null;
+    }
+    if (runner) {
+        Runner.stop(runner);
+    }
 }
 
 let dangerTimer = 0;
@@ -134,7 +161,7 @@ function checkGameOver() {
         // Ignore walls, static aiming body
         if (!body.isStatic && body !== currentCircleBody) {
             // Only count as 'danger' if it's near the top AND moving slowly (stuck)
-            if (body.position.y < deadLine && body.speed < 0.2) {
+            if (body.position.y - CIRCLES[body.circleIndex]?.radius < deadLine && body.speed < 0.5) {
                 underThreat = true;
                 break;
             }
@@ -151,8 +178,11 @@ function checkGameOver() {
     }
 }
 
+// 게임오버 시에도 cleanup 호출
 function endGame() {
     gameOver = true;
+    cleanup(); // 이벤트 리스너 정리
+
     const scoreBoard = document.getElementById('score-board');
     scoreBoard.innerHTML = `GAME OVER! Score: ${currentScore}<br><span style="font-size:16px; color: red;">Click to Restart</span>`;
     scoreBoard.style.backgroundColor = 'rgba(255,255,255,0.9)';
@@ -166,25 +196,30 @@ function handleCollisions(event) {
     if (gameOver) return;
 
     const pairs = event.pairs;
-    // Use a Set to track IDs removed in this step to avoid double-processing
-    const pendingRemoval = new Set();
+    const processed = new Set(); // ID 대신 처리된 쌍을 추적
 
     for (let i = 0; i < pairs.length; i++) {
         const pair = pairs[i];
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
 
-        // Skip if already marked for removal
-        if (pendingRemoval.has(bodyA.id) || pendingRemoval.has(bodyB.id)) continue;
+        // 이미 world에 없는 body는 스킵
+        const worldBodies = Composite.allBodies(engine.world);
+        if (!worldBodies.includes(bodyA) || !worldBodies.includes(bodyB)) continue;
+
+        // Skip if already processed
+        const pairKey = `${Math.min(bodyA.id, bodyB.id)}-${Math.max(bodyA.id, bodyB.id)}`;
+        if (processed.has(pairKey)) continue;
+        processed.add(pairKey);
 
         // Check if both are circles
         if (bodyA.circleIndex !== undefined && bodyB.circleIndex !== undefined) {
-            attemptMerge(bodyA, bodyB, pendingRemoval);
+            attemptMerge(bodyA, bodyB);
         }
     }
 }
 
-function attemptMerge(bodyA, bodyB, pendingRemoval) {
+function attemptMerge(bodyA, bodyB) {
     let shouldMerge = false;
     let newIndex = -1;
 
@@ -198,36 +233,28 @@ function attemptMerge(bodyA, bodyB, pendingRemoval) {
     // 2. Special Interaction (Wildcard)
     else if (bodyA.circleType === 'special' || bodyB.circleType === 'special') {
         shouldMerge = true;
-        // Two specials -> Random large
+        // Two specials -> Random but LIMITED
         if (bodyA.circleType === 'special' && bodyB.circleType === 'special') {
-            newIndex = Math.min(CIRCLES.length - 1, Math.floor(Math.random() * 3) + 4);
+            newIndex = Math.floor(Math.random() * 3) + 2; // 2~4 인덱스로 제한 (원래는 4~6)
         }
-        // Special + Normal -> Normal + 1
+            // Special + Normal -> Normal + 1 (상한 체크)
         else if (bodyA.circleType === 'special') {
-            newIndex = bodyB.circleIndex + 1;
+            newIndex = Math.min(CIRCLES.length - 1, bodyB.circleIndex + 1);
         } else {
-            newIndex = bodyA.circleIndex + 1;
+            newIndex = Math.min(CIRCLES.length - 1, bodyA.circleIndex + 1);
         }
     }
 
-    if (shouldMerge && newIndex < CIRCLES.length) {
-        // Mark as removed
-        pendingRemoval.add(bodyA.id);
-        pendingRemoval.add(bodyB.id);
-
-        // Remove from world
+    // 최종 안전장치: newIndex가 배열 범위를 벗어나지 않도록
+    if (shouldMerge && newIndex >= 0 && newIndex < CIRCLES.length) {
         World.remove(engine.world, [bodyA, bodyB]);
 
-        // Calculate midpoint
         const midX = (bodyA.position.x + bodyB.position.x) / 2;
         const midY = (bodyA.position.y + bodyB.position.y) / 2;
 
-        // Score
-        currentScore += CIRCLES[newIndex] ? CIRCLES[newIndex].score : 0;
+        currentScore += CIRCLES[newIndex].score;
         updateUI();
 
-        // Spawn new body
-        // Ensure new body is dynamic
         const newBody = createCircle(midX, midY, newIndex, false);
         World.add(engine.world, newBody);
     }
@@ -260,7 +287,8 @@ function createCircle(x, y, index, isStatic) {
 
 function createSpecialCircle(x, y, isStatic) {
     // Special is small, like index 0 size
-    const radius = CIRCLES[0].radius;
+    body.circleRadius = config.radius;
+    const radius = currentCircleBody.circleRadius || CIRCLES[nextCircleIndex]?.radius || 15;
 
     const body = Bodies.circle(x, y, radius, {
         isStatic: isStatic,
@@ -323,10 +351,12 @@ function updateUI() {
 }
 
 function setupInputs(container) {
+    let isTouching = false; // 터치 진행 중인지 추적
+
     const updatePos = (x) => {
         if (!currentCircleBody || !currentCircleBody.isStatic) return;
 
-        const radius = currentCircleBody.circleRadius; // matter js prop
+        const radius = currentCircleBody.circleRadius || CIRCLES[nextCircleIndex]?.radius || 15;
         const maxX = container.clientWidth - radius;
         const minX = radius;
         x = Math.max(minX, Math.min(x, maxX));
@@ -346,33 +376,47 @@ function setupInputs(container) {
         }
     };
 
-    // Mouse
+    // Mouse (터치 중일 때는 무시)
     container.addEventListener('mousemove', e => {
+        if (isTouching) return; // 터치 중이면 무시
         if (e.buttons === 1) updatePos(e.offsetX);
     });
+
     container.addEventListener('mousedown', e => {
+        if (isTouching) return;
         updatePos(e.offsetX);
     });
+
     window.addEventListener('mouseup', e => {
+        if (isTouching) return;
         drop();
     });
 
     // Touch
-    container.addEventListener('touchmove', e => {
-        e.preventDefault();
-        const rect = container.getBoundingClientRect();
-        const x = e.touches[0].clientX - rect.left;
-        updatePos(x);
-    }, { passive: false });
-
     container.addEventListener('touchstart', e => {
         e.preventDefault();
+        isTouching = true;
         const rect = container.getBoundingClientRect();
         const x = e.touches[0].clientX - rect.left;
         updatePos(x);
     }, { passive: false });
 
-    window.addEventListener('touchend', drop);
+    container.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!isTouching) return;
+        const rect = container.getBoundingClientRect();
+        const x = e.touches[0].clientX - rect.left;
+        updatePos(x);
+    }, { passive: false });
+
+    window.addEventListener('touchend', e => {
+        if (!isTouching) return;
+        drop();
+        // 터치 종료 후 약간의 지연을 두고 플래그 해제 (마우스 이벤트 방지)
+        setTimeout(() => {
+            isTouching = false;
+        }, 300);
+    });
 }
 
 function initLegend(container) {
