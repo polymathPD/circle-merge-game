@@ -3,7 +3,7 @@ import { createCircle, createSpecialCircle } from './entities.js';
 import * as UI from './ui.js';
 import { InputHandler } from './input.js';
 
-const { Engine, Render, Runner, World, Bodies, Body, Events, Composite, Sleeping } = window.Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events, Composite } = window.Matter;
 
 export class Game {
     constructor() {
@@ -179,7 +179,6 @@ export class Game {
     handleInputDrop() {
         if (this.currentCircleBody && this.currentCircleBody.isStatic) {
             Body.setStatic(this.currentCircleBody, false);
-            Sleeping.set(this.currentCircleBody, false); // Force wake up
             this.currentCircleBody = null;
 
             setTimeout(() => {
