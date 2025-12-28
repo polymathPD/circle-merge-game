@@ -3,7 +3,7 @@ import { createCircle, createSpecialCircle } from './entities.js';
 import * as UI from './ui.js';
 import { InputHandler } from './input.js';
 
-const { Engine, Render, Runner, World, Bodies, Body, Events, Composite } = window.Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events, Composite, Sleeping } = window.Matter;
 
 export class Game {
     constructor() {
@@ -13,6 +13,8 @@ export class Game {
         this.currentScore = 0;
         this.nextCircleIndex = 0;
         this.nextCircleType = 'normal';
+        this.currentCircleIndex = 0;
+        this.currentCircleType = 'normal';
         this.currentCircleBody = null;
         this.gameOver = false;
         this.dangerTimer = 0;
@@ -31,7 +33,11 @@ export class Game {
         const height = totalHeight - legendHeight;
 
         // Matter Setup
-        this.engine = Engine.create();
+        this.engine = Engine.create({
+            enableSleeping: true // Allow bodies to rest
+        });
+        this.engine.positionIterations = 8; // Default 6
+        this.engine.velocityIterations = 8; // Default 4
         this.engine.world.gravity.y = CONFIG.PHYSICS.gravity;
 
         this.render = Render.create({
@@ -71,7 +77,8 @@ export class Game {
         });
 
         // Start
-        this.prepareNextTurn();
+        this.generateNextCircle(); // Generate the first 'next'
+        this.prepareNextTurn(); // Move 'next' to 'current' and generate new 'next'
 
         // Resize handler
         window.addEventListener('resize', () => this.handleResize());
@@ -115,9 +122,7 @@ export class Game {
         ctx.fillText('DEADLINE', 5, CONFIG.DEADLINE_Y - 5);
     }
 
-    prepareNextTurn() {
-        if (this.gameOver) return;
-
+    generateNextCircle() {
         // 10% Chance for Special
         if (Math.random() < 0.1) {
             this.nextCircleType = 'special';
@@ -126,6 +131,17 @@ export class Game {
             this.nextCircleType = 'normal';
             this.nextCircleIndex = Math.floor(Math.random() * 3); // 0, 1, or 2
         }
+    }
+
+    prepareNextTurn() {
+        if (this.gameOver) return;
+
+        // Move Next to Current
+        this.currentCircleType = this.nextCircleType;
+        this.currentCircleIndex = this.nextCircleIndex;
+
+        // Generate new Next
+        this.generateNextCircle();
 
         this.updateUI();
         this.currentCircleBody = null;
@@ -138,10 +154,10 @@ export class Game {
         if (this.currentCircleBody || this.gameOver) return;
 
         let body;
-        if (this.nextCircleType === 'special') {
+        if (this.currentCircleType === 'special') {
             body = createSpecialCircle(x, 90, true);
         } else {
-            body = createCircle(x, 90, this.nextCircleIndex, true);
+            body = createCircle(x, 90, this.currentCircleIndex, true);
         }
 
         this.currentCircleBody = body;
@@ -152,7 +168,7 @@ export class Game {
         if (!this.currentCircleBody || !this.currentCircleBody.isStatic) return;
 
         const container = document.getElementById('game-container'); // Or passed in ctor
-        const radius = this.currentCircleBody.circleRadius || CIRCLES[this.nextCircleIndex]?.radius || 15;
+        const radius = this.currentCircleBody.circleRadius || (this.currentCircleIndex !== undefined ? CIRCLES[this.currentCircleIndex]?.radius : 15);
         const maxX = container.clientWidth - radius;
         const minX = radius;
 
@@ -163,6 +179,7 @@ export class Game {
     handleInputDrop() {
         if (this.currentCircleBody && this.currentCircleBody.isStatic) {
             Body.setStatic(this.currentCircleBody, false);
+            Sleeping.set(this.currentCircleBody, false); // Force wake up
             this.currentCircleBody = null;
 
             setTimeout(() => {
@@ -211,9 +228,19 @@ export class Game {
                 newIndex = Math.floor(Math.random() * 3) + 2;
             }
             else if (bodyA.circleType === 'special') {
-                newIndex = Math.min(CIRCLES.length - 1, bodyB.circleIndex + 1);
+                // Check if target is max level
+                if (bodyB.circleIndex === CIRCLES.length - 1) {
+                    shouldMerge = false;
+                } else {
+                    newIndex = Math.min(CIRCLES.length - 1, bodyB.circleIndex + 1);
+                }
             } else {
-                newIndex = Math.min(CIRCLES.length - 1, bodyA.circleIndex + 1);
+                // Check if target is max level
+                if (bodyA.circleIndex === CIRCLES.length - 1) {
+                    shouldMerge = false;
+                } else {
+                    newIndex = Math.min(CIRCLES.length - 1, bodyA.circleIndex + 1);
+                }
             }
         }
 
