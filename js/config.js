@@ -3,7 +3,7 @@ export const CONFIG = {
     WALL_THICKNESS: 50,
     PHYSICS: {
         gravity: 1.5,
-        restitution: 0.6 // Bouncy!
+        restitution: 0.5
     },
     DEADLINE_Y: 150,
     LEGEND_HEIGHT: 60, // Must match CSS

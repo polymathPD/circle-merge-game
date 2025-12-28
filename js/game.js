@@ -18,6 +18,12 @@ export class Game {
         this.currentCircleBody = null;
         this.gameOver = false;
         this.dangerTimer = 0;
+        this.collisionHandler = (e) => this.handleCollisions(e);
+        this.gameOverHandler = () => this.checkGameOver();
+        this.deadlineHandler = () => this.drawDeadline();
+        this.isDropping = false;
+        this.lastCheckTime = Date.now();
+        this.lastDropTime = 0;
     }
 
     init() {
@@ -34,10 +40,10 @@ export class Game {
 
         // Matter Setup
         this.engine = Engine.create({
-            enableSleeping: true // Allow bodies to rest
+            enableSleeping: false,
+            positionIterations: 8,
+            velocityIterations: 8
         });
-        this.engine.positionIterations = 8; // Default 6
-        this.engine.velocityIterations = 8; // Default 4
         this.engine.world.gravity.y = CONFIG.PHYSICS.gravity;
 
         this.render = Render.create({
@@ -56,14 +62,9 @@ export class Game {
         // Boundaries
         this.createBoundaries(width, height);
 
-        // Collision Logic
-        Events.on(this.engine, 'collisionStart', (e) => this.handleCollisions(e));
-
-        // Game Over Logic
-        Events.on(this.engine, 'afterUpdate', () => this.checkGameOver());
-
-        // Custom Render (Deadline)
-        Events.on(this.render, 'afterRender', () => this.drawDeadline());
+        Events.on(this.engine, 'collisionStart', this.collisionHandler);
+        Events.on(this.engine, 'afterUpdate', this.gameOverHandler);
+        Events.on(this.render, 'afterRender', this.deadlineHandler);
 
         // Run
         this.runner = Runner.create();
@@ -177,12 +178,18 @@ export class Game {
     }
 
     handleInputDrop() {
-        if (this.currentCircleBody && this.currentCircleBody.isStatic) {
+        if (this.currentCircleBody && this.currentCircleBody.isStatic && !this.isDropping) {
+            this.isDropping = true;
+            this.lastDropTime = Date.now();
+
             Body.setStatic(this.currentCircleBody, false);
             this.currentCircleBody = null;
 
             setTimeout(() => {
-                if (!this.gameOver) this.prepareNextTurn();
+                if (!this.gameOver) {
+                    this.prepareNextTurn();
+                    this.isDropping = false;
+                }
             }, 800);
         }
     }
@@ -222,23 +229,14 @@ export class Game {
             }
         }
         else if (bodyA.circleType === 'special' || bodyB.circleType === 'special') {
-            shouldMerge = true;
             if (bodyA.circleType === 'special' && bodyB.circleType === 'special') {
+                shouldMerge = true;
                 newIndex = Math.floor(Math.random() * 3) + 2;
-            }
-            else if (bodyA.circleType === 'special') {
-                // Check if target is max level
-                if (bodyB.circleIndex === CIRCLES.length - 1) {
-                    shouldMerge = false;
-                } else {
-                    newIndex = Math.min(CIRCLES.length - 1, bodyB.circleIndex + 1);
-                }
             } else {
-                // Check if target is max level
-                if (bodyA.circleIndex === CIRCLES.length - 1) {
-                    shouldMerge = false;
-                } else {
-                    newIndex = Math.min(CIRCLES.length - 1, bodyA.circleIndex + 1);
+                const normalBody = bodyA.circleType === 'normal' ? bodyA : bodyB;
+                if (normalBody.circleIndex < CIRCLES.length - 1) {
+                    shouldMerge = true;
+                    newIndex = normalBody.circleIndex + 1;
                 }
             }
         }
@@ -260,13 +258,23 @@ export class Game {
     checkGameOver() {
         if (this.gameOver) return;
 
+        const currentTime = Date.now();
+        const deltaTime = currentTime - this.lastCheckTime;
+        this.lastCheckTime = currentTime;
+
+        // 방금 드롭한 원은 1초 동안 게임오버 체크에서 제외
+        const timeSinceLastDrop = currentTime - this.lastDropTime;
+        if (timeSinceLastDrop < 1000) {
+            this.dangerTimer = 0;
+            return;
+        }
+
         const bodies = Composite.allBodies(this.engine.world);
         let underThreat = false;
 
         for (const body of bodies) {
-            if (!body.isStatic && body !== this.currentCircleBody) {
-                // If circle is above deadline
-                if (body.position.y - (body.circleRadius || 15) < CONFIG.DEADLINE_Y && body.speed < 0.5) {
+            if (!body.isStatic && body.circleRadius) {  // circleRadius로 원인지 체크
+                if (body.position.y - body.circleRadius < CONFIG.DEADLINE_Y && body.speed < 0.5) {
                     underThreat = true;
                     break;
                 }
@@ -274,7 +282,7 @@ export class Game {
         }
 
         if (underThreat) {
-            this.dangerTimer += 16.6;
+            this.dangerTimer += deltaTime;  // 실제 경과 시간 사용
             if (this.dangerTimer > 2000) {
                 this.endGame();
             }
@@ -297,13 +305,18 @@ export class Game {
 
     cleanup() {
         if (this.engine) {
-            Events.off(this.engine);
-            const bodies = Composite.allBodies(this.engine.world);
+            Events.off(this.engine, 'collisionStart', this.collisionHandler);
+            Events.off(this.engine, 'afterUpdate', this.gameOverHandler);
+        }
+        if (this.render) {
+            Events.off(this.render, 'afterRender', this.deadlineHandler);
+        }
+
+        if (this.engine) {
             World.clear(this.engine.world);
             Engine.clear(this.engine);
         }
         if (this.render) {
-            Events.off(this.render);
             Render.stop(this.render);
             if (this.render.canvas) this.render.canvas.remove();
         }
