@@ -12,16 +12,16 @@ export const CONFIG = {
 
 // Circle Definitions
 export const CIRCLES = [
-    { radius: 11, color: '#FFD700', score: 10, image: './data/circle_0.svg' },      // 15 * 0.75
-    { radius: 19, color: '#FF6347', score: 20, image: './data/circle_1.svg' },      // 25 * 0.75
-    { radius: 26, color: '#9370DB', score: 40, image: './data/circle_2.svg' },      // 35 * 0.75
-    { radius: 34, color: '#1E90FF', score: 80, image: './data/circle_3.svg' },      // 45 * 0.75
-    { radius: 45, color: '#32CD32', score: 160, image: './data/circle_4.svg' },     // 60 * 0.75
-    { radius: 56, color: '#FF4500', score: 320, image: './data/circle_5.svg' },     // 75 * 0.75
-    { radius: 68, color: '#FFD700', score: 640, image: './data/circle_6.svg' },     // 90 * 0.75
-    { radius: 83, color: '#C71585', score: 1280, image: './data/circle_7.svg' },    // 110 * 0.75
-    { radius: 98, color: '#8A2BE2', score: 2560, image: './data/circle_8.svg' },    // 130 * 0.75
-    { radius: 113, color: '#00FA9A', score: 5120, image: './data/circle_9.svg' }    // 150 * 0.75
+    { radius: 11, color: '#FFD700', score: 10, image: 'data/circle_0.svg' },      // 15 * 0.75
+    { radius: 19, color: '#FF6347', score: 20, image: 'data/circle_1.svg' },      // 25 * 0.75
+    { radius: 26, color: '#9370DB', score: 40, image: 'data/circle_2.svg' },      // 35 * 0.75
+    { radius: 34, color: '#1E90FF', score: 80, image: 'data/circle_3.svg' },      // 45 * 0.75
+    { radius: 45, color: '#32CD32', score: 160, image: 'data/circle_4.svg' },     // 60 * 0.75
+    { radius: 56, color: '#FF4500', score: 320, image: 'data/circle_5.svg' },     // 75 * 0.75
+    { radius: 68, color: '#FFD700', score: 640, image: 'data/circle_6.svg' },     // 90 * 0.75
+    { radius: 83, color: '#C71585', score: 1280, image: 'data/circle_7.svg' },    // 110 * 0.75
+    { radius: 98, color: '#8A2BE2', score: 2560, image: 'data/circle_8.svg' },    // 130 * 0.75
+    { radius: 113, color: '#00FA9A', score: 5120, image: 'data/circle_9.svg' }    // 150 * 0.75
 ];
 
-export const SPECIAL_CIRCLE_IMAGE = './data/special.svg';
+export const SPECIAL_CIRCLE_IMAGE = 'data/special.svg';

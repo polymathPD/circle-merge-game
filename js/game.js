@@ -1,4 +1,4 @@
-import { CONFIG, CIRCLES } from './config.js';
+import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE } from './config.js';
 import { createCircle, createSpecialCircle } from './entities.js';
 import * as UI from './ui.js';
 import { InputHandler } from './input.js';
@@ -6,7 +6,8 @@ import { InputHandler } from './input.js';
 const { Engine, Render, Runner, World, Bodies, Body, Events, Composite } = window.Matter;
 
 export class Game {
-    constructor() {
+    constructor(imageLoader) {
+        this.imageLoader = imageLoader;
         this.engine = null;
         this.render = null;
         this.runner = null;
@@ -58,6 +59,26 @@ export class Game {
                 pixelRatio: window.devicePixelRatio
             }
         });
+
+        if (this.imageLoader && this.imageLoader.loaded) {
+            const images = this.imageLoader.getAllImages();
+            console.log('🎨 Matter.js에 텍스처 등록 중...');
+
+            // Render의 텍스처 캐시에 등록
+            CIRCLES.forEach((circle, index) => {
+                const img = images[`circle_${index}`];
+                if (img) {
+                    this.render.textures[circle.image] = img;
+                    console.log(`✅ 텍스처 등록: circle_${index}`);
+                }
+            });
+
+            const specialImg = images['special'];
+            if (specialImg) {
+                this.render.textures[SPECIAL_CIRCLE_IMAGE] = specialImg;
+                console.log(`✅ 텍스처 등록: special`);
+            }
+        }
 
         // Boundaries
         this.createBoundaries(width, height);
