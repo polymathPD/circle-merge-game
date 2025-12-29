@@ -1,0 +1,109 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 오렌지 몸통 -->
+  <circle cx="50" cy="50" r="40" fill="#E67E22" stroke="#D35400" stroke-width="1.5"/>
+  
+  <!-- 밝은 부분 -->
+  <circle cx="50" cy="50" r="36" fill="#F39C12" opacity="0.6"/>
+  
+  <!-- 꼭지 (작은 돌기) -->
+  <g>
+    <ellipse cx="50" cy="12" rx="3" ry="4" fill="#8B7355" stroke="#6B5437" stroke-width="0.8"/>
+    <rect x="48.5" y="10" width="3" height="6" rx="1" fill="#8B7355"/>
+  </g>
+  
+  <!-- 오렌지 껍질 질감 (많은 작은 움푹 들어간 점들) -->
+  <g fill="#CA6F1E" opacity="0.4">
+    <!-- 상단 -->
+    <circle cx="35" cy="22" r="1.2"/>
+    <circle cx="42" cy="20" r="1"/>
+    <circle cx="50" cy="19" r="1.2"/>
+    <circle cx="58" cy="20" r="1"/>
+    <circle cx="65" cy="22" r="1.2"/>
+    
+    <circle cx="28" cy="28" r="1"/>
+    <circle cx="38" cy="26" r="1.2"/>
+    <circle cx="48" cy="25" r="1"/>
+    <circle cx="52" cy="25" r="1"/>
+    <circle cx="62" cy="26" r="1.2"/>
+    <circle cx="72" cy="28" r="1"/>
+    
+    <!-- 중상단 -->
+    <circle cx="22" cy="35" r="1.2"/>
+    <circle cx="32" cy="33" r="1"/>
+    <circle cx="42" cy="32" r="1.2"/>
+    <circle cx="50" cy="31" r="1"/>
+    <circle cx="58" cy="32" r="1.2"/>
+    <circle cx="68" cy="33" r="1"/>
+    <circle cx="78" cy="35" r="1.2"/>
+    
+    <circle cx="18" cy="44" r="1"/>
+    <circle cx="28" cy="42" r="1.2"/>
+    <circle cx="38" cy="40" r="1"/>
+    <circle cx="48" cy="39" r="1.2"/>
+    <circle cx="52" cy="39" r="1.2"/>
+    <circle cx="62" cy="40" r="1"/>
+    <circle cx="72" cy="42" r="1.2"/>
+    <circle cx="82" cy="44" r="1"/>
+    
+    <!-- 중간 -->
+    <circle cx="15" cy="50" r="1.2"/>
+    <circle cx="25" cy="50" r="1"/>
+    <circle cx="35" cy="49" r="1.2"/>
+    <circle cx="45" cy="48" r="1"/>
+    <circle cx="50" cy="48" r="1.2"/>
+    <circle cx="55" cy="48" r="1"/>
+    <circle cx="65" cy="49" r="1.2"/>
+    <circle cx="75" cy="50" r="1"/>
+    <circle cx="85" cy="50" r="1.2"/>
+    
+    <!-- 중하단 -->
+    <circle cx="18" cy="56" r="1"/>
+    <circle cx="28" cy="58" r="1.2"/>
+    <circle cx="38" cy="60" r="1"/>
+    <circle cx="48" cy="61" r="1.2"/>
+    <circle cx="52" cy="61" r="1.2"/>
+    <circle cx="62" cy="60" r="1"/>
+    <circle cx="72" cy="58" r="1.2"/>
+    <circle cx="82" cy="56" r="1"/>
+    
+    <circle cx="22" cy="65" r="1.2"/>
+    <circle cx="32" cy="67" r="1"/>
+    <circle cx="42" cy="68" r="1.2"/>
+    <circle cx="50" cy="69" r="1"/>
+    <circle cx="58" cy="68" r="1.2"/>
+    <circle cx="68" cy="67" r="1"/>
+    <circle cx="78" cy="65" r="1.2"/>
+    
+    <!-- 하단 -->
+    <circle cx="28" cy="72" r="1"/>
+    <circle cx="38" cy="74" r="1.2"/>
+    <circle cx="48" cy="75" r="1"/>
+    <circle cx="52" cy="75" r="1"/>
+    <circle cx="62" cy="74" r="1.2"/>
+    <circle cx="72" cy="72" r="1"/>
+    
+    <circle cx="35" cy="78" r="1.2"/>
+    <circle cx="42" cy="80" r="1"/>
+    <circle cx="50" cy="81" r="1.2"/>
+    <circle cx="58" cy="80" r="1"/>
+    <circle cx="65" cy="78" r="1.2"/>
+  </g>
+  
+  <!-- 추가 미세 질감 -->
+  <g fill="#BA4A00" opacity="0.2">
+    <circle cx="40" cy="35" r="0.6"/>
+    <circle cx="55" cy="36" r="0.6"/>
+    <circle cx="33" cy="45" r="0.6"/>
+    <circle cx="60" cy="46" r="0.6"/>
+    <circle cx="45" cy="55" r="0.6"/>
+    <circle cx="52" cy="54" r="0.6"/>
+    <circle cx="38" cy="65" r="0.6"/>
+    <circle cx="58" cy="64" r="0.6"/>
+  </g>
+  
+  <!-- 하이라이트 -->
+  <ellipse cx="38" cy="32" rx="14" ry="11" fill="white" opacity="0.45"/>
+  
+  <!-- 미세한 광택 -->
+  <ellipse cx="42" cy="36" rx="8" ry="6" fill="white" opacity="0.3"/>
+</svg>

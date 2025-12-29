@@ -251,8 +251,8 @@ export class Game {
         }
         else if (bodyA.circleType === 'special' || bodyB.circleType === 'special') {
             if (bodyA.circleType === 'special' && bodyB.circleType === 'special') {
-                shouldMerge = true;
-                newIndex = Math.floor(Math.random() * 3) + 2;
+                shouldMerge = false;
+                return;
             } else {
                 const normalBody = bodyA.circleType === 'normal' ? bodyA : bodyB;
                 if (normalBody.circleIndex < CIRCLES.length - 1) {

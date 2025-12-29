@@ -1,0 +1,118 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 수박 몸통 (약간 타원형) -->
+  <ellipse cx="50" cy="52" rx="40" ry="43" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
+  
+  <!-- 밝은 부분 -->
+  <ellipse cx="50" cy="52" rx="37" ry="40" fill="#66BB6A" opacity="0.5"/>
+  
+  <!-- 줄기 (위쪽) -->
+  <g>
+    <!-- 말린 줄기 -->
+    <path d="M 50 7 Q 45 10 43 14 Q 42 17 44 19" 
+          stroke="#8B7355" 
+          stroke-width="2.5" 
+          fill="none" 
+          stroke-linecap="round"/>
+    <path d="M 50 7 Q 55 9 57 12" 
+          stroke="#8B7355" 
+          stroke-width="2" 
+          fill="none" 
+          stroke-linecap="round"/>
+  </g>
+  
+  <!-- 진한 녹색 세로 줄무늬 (수박 특징) -->
+  <g opacity="0.7">
+    <!-- 왼쪽에서 오른쪽으로 -->
+    <path d="M 18 28 Q 14 52 18 76" 
+          stroke="#1B5E20" 
+          stroke-width="6" 
+          fill="none"/>
+    
+    <path d="M 28 16 Q 24 52 28 88" 
+          stroke="#1B5E20" 
+          stroke-width="7" 
+          fill="none"/>
+    
+    <path d="M 38 12 Q 36 52 38 92" 
+          stroke="#1B5E20" 
+          stroke-width="6" 
+          fill="none"/>
+    
+    <path d="M 50 10 Q 50 52 50 94" 
+          stroke="#1B5E20" 
+          stroke-width="7" 
+          fill="none"/>
+    
+    <path d="M 62 12 Q 64 52 62 92" 
+          stroke="#1B5E20" 
+          stroke-width="6" 
+          fill="none"/>
+    
+    <path d="M 72 16 Q 76 52 72 88" 
+          stroke="#1B5E20" 
+          stroke-width="7" 
+          fill="none"/>
+    
+    <path d="M 82 28 Q 86 52 82 76" 
+          stroke="#1B5E20" 
+          stroke-width="6" 
+          fill="none"/>
+  </g>
+  
+  <!-- 줄무늬 사이 밝은 부분 -->
+  <g opacity="0.3">
+    <path d="M 23 22 Q 19 52 23 82" 
+          stroke="#81C784" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <path d="M 33 14 Q 30 52 33 90" 
+          stroke="#81C784" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <path d="M 44 11 Q 43 52 44 93" 
+          stroke="#81C784" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <path d="M 56 11 Q 57 52 56 93" 
+          stroke="#81C784" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <path d="M 67 14 Q 70 52 67 90" 
+          stroke="#81C784" 
+          stroke-width="2" 
+          fill="none"/>
+    
+    <path d="M 77 22 Q 81 52 77 82" 
+          stroke="#81C784" 
+          stroke-width="2" 
+          fill="none"/>
+  </g>
+  
+  <!-- 미세한 표면 질감 -->
+  <g fill="#2E7D32" opacity="0.15">
+    <circle cx="35" cy="35" r="0.8"/>
+    <circle cx="48" cy="32" r="0.7"/>
+    <circle cx="62" cy="36" r="0.8"/>
+    
+    <circle cx="28" cy="50" r="0.7"/>
+    <circle cx="50" cy="48" r="0.8"/>
+    <circle cx="72" cy="52" r="0.7"/>
+    
+    <circle cx="38" cy="68" r="0.8"/>
+    <circle cx="52" cy="70" r="0.7"/>
+    <circle cx="65" cy="66" r="0.8"/>
+  </g>
+  
+  <!-- 하이라이트 -->
+  <ellipse cx="35" cy="30" rx="14" ry="12" fill="white" opacity="0.3"/>
+  
+  <!-- 미세한 광택 -->
+  <ellipse cx="38" cy="34" rx="8" ry="7" fill="white" opacity="0.2"/>
+  
+  <!-- 하단 노란 점 (배꼽) -->
+  <ellipse cx="50" cy="92" rx="6" ry="4" fill="#F9E79F" opacity="0.6"/>
+</svg>

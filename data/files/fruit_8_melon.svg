@@ -1,0 +1,71 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 멜론 몸통 (세로로 긴 타원) -->
+  <ellipse cx="50" cy="52" rx="36" ry="42" fill="#90EE90" stroke="#7CCD7C" stroke-width="1.5"/>
+  
+  <!-- 밝은 부분 -->
+  <ellipse cx="50" cy="52" rx="32" ry="38" fill="#B4EEB4" opacity="0.6"/>
+  
+  <!-- 줄기 (위쪽 돌출) -->
+  <g>
+    <rect x="47" y="6" width="6" height="8" rx="1" fill="#8B7355" stroke="#6B5437" stroke-width="0.8"/>
+    <ellipse cx="50" cy="12" rx="4" ry="3" fill="#A0826D"/>
+  </g>
+  
+  <!-- 망사 무늬 (세로선) -->
+  <g stroke="#7CCD7C" stroke-width="1.5" fill="none" opacity="0.6">
+    <path d="M 26 18 Q 22 52 26 86"/>
+    <path d="M 34 14 Q 30 52 34 90"/>
+    <path d="M 42 12 Q 40 52 42 92"/>
+    <path d="M 50 10 Q 50 52 50 94"/>
+    <path d="M 58 12 Q 60 52 58 92"/>
+    <path d="M 66 14 Q 70 52 66 90"/>
+    <path d="M 74 18 Q 78 52 74 86"/>
+  </g>
+  
+  <!-- 가로 망사 무늬 -->
+  <g stroke="#7CCD7C" stroke-width="1" fill="none" opacity="0.4">
+    <ellipse cx="50" cy="20" rx="32" ry="8"/>
+    <ellipse cx="50" cy="28" rx="34" ry="8"/>
+    <ellipse cx="50" cy="36" rx="35" ry="8"/>
+    <ellipse cx="50" cy="44" rx="36" ry="8"/>
+    <ellipse cx="50" cy="52" rx="36" ry="8"/>
+    <ellipse cx="50" cy="60" rx="36" ry="8"/>
+    <ellipse cx="50" cy="68" rx="35" ry="8"/>
+    <ellipse cx="50" cy="76" rx="34" ry="8"/>
+    <ellipse cx="50" cy="84" rx="32" ry="8"/>
+  </g>
+  
+  <!-- 망사 교차점 강조 -->
+  <g fill="#6BA06B" opacity="0.5">
+    <circle cx="34" cy="28" r="0.8"/>
+    <circle cx="42" cy="28" r="0.8"/>
+    <circle cx="58" cy="28" r="0.8"/>
+    <circle cx="66" cy="28" r="0.8"/>
+    
+    <circle cx="30" cy="44" r="0.8"/>
+    <circle cx="42" cy="44" r="0.8"/>
+    <circle cx="50" cy="44" r="0.8"/>
+    <circle cx="58" cy="44" r="0.8"/>
+    <circle cx="70" cy="44" r="0.8"/>
+    
+    <circle cx="30" cy="60" r="0.8"/>
+    <circle cx="42" cy="60" r="0.8"/>
+    <circle cx="50" cy="60" r="0.8"/>
+    <circle cx="58" cy="60" r="0.8"/>
+    <circle cx="70" cy="60" r="0.8"/>
+    
+    <circle cx="34" cy="76" r="0.8"/>
+    <circle cx="42" cy="76" r="0.8"/>
+    <circle cx="58" cy="76" r="0.8"/>
+    <circle cx="66" cy="76" r="0.8"/>
+  </g>
+  
+  <!-- 하이라이트 -->
+  <ellipse cx="36" cy="28" rx="14" ry="11" fill="white" opacity="0.35"/>
+  
+  <!-- 미세한 광택 -->
+  <ellipse cx="40" cy="32" rx="8" ry="6" fill="white" opacity="0.25"/>
+  
+  <!-- 하단 배꼽 자국 -->
+  <circle cx="50" cy="90" r="3" fill="#7CCD7C" opacity="0.5"/>
+</svg>

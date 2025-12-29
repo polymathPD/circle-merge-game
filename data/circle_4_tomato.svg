@@ -1,0 +1,44 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 외곽 빨간 껍질 -->
+  <circle cx="50" cy="50" r="48" fill="#E74C3C" stroke="#C0392B" stroke-width="2"/>
+  
+  <!-- 과육 -->
+  <circle cx="50" cy="50" r="42" fill="#EC7063"/>
+  
+  <!-- 4개의 씨방 -->
+  <g>
+    <!-- 상단 좌측 씨방 -->
+    <ellipse cx="35" cy="35" rx="12" ry="12" fill="#F1948A"/>
+    <ellipse cx="32" cy="32" rx="4" ry="4" fill="#F8B9B3"/>
+    <ellipse cx="31" cy="34" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="34" cy="33" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="36" cy="36" rx="1.5" ry="2" fill="#8B4513"/>
+    
+    <!-- 상단 우측 씨방 -->
+    <ellipse cx="65" cy="35" rx="12" ry="12" fill="#F1948A"/>
+    <ellipse cx="68" cy="32" rx="4" ry="4" fill="#F8B9B3"/>
+    <ellipse cx="66" cy="34" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="69" cy="33" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="64" cy="36" rx="1.5" ry="2" fill="#8B4513"/>
+    
+    <!-- 하단 좌측 씨방 -->
+    <ellipse cx="35" cy="65" rx="12" ry="12" fill="#F1948A"/>
+    <ellipse cx="32" cy="68" rx="4" ry="4" fill="#F8B9B3"/>
+    <ellipse cx="31" cy="66" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="34" cy="67" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="36" cy="64" rx="1.5" ry="2" fill="#8B4513"/>
+    
+    <!-- 하단 우측 씨방 -->
+    <ellipse cx="65" cy="65" rx="12" ry="12" fill="#F1948A"/>
+    <ellipse cx="68" cy="68" rx="4" ry="4" fill="#F8B9B3"/>
+    <ellipse cx="66" cy="66" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="69" cy="67" rx="1.5" ry="2" fill="#8B4513"/>
+    <ellipse cx="64" cy="64" rx="1.5" ry="2" fill="#8B4513"/>
+  </g>
+  
+  <!-- 중심 젤리 부분 -->
+  <circle cx="50" cy="50" r="18" fill="#F8B9B3" opacity="0.6"/>
+  
+  <!-- 하이라이트 -->
+  <ellipse cx="32" cy="32" rx="12" ry="8" fill="white" opacity="0.3"/>
+</svg>

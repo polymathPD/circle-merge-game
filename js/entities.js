@@ -24,7 +24,8 @@ export function createCircle(x, y, index, isStatic) {
             lineWidth: 1
         },
         restitution: restitution,
-        friction: 0.5,
+        friction: 0.15,
+        frictionAir: 0.01,
         density: density
     });
 

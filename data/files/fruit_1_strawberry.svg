@@ -1,0 +1,77 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 딸기 몸통 (하트 모양) -->
+  <path d="M 50 85 
+           Q 30 70, 25 50 
+           Q 25 35, 35 28 
+           Q 42 24, 50 30
+           Q 58 24, 65 28
+           Q 75 35, 75 50
+           Q 70 70, 50 85 Z" 
+        fill="#E74C3C" 
+        stroke="#C0392B" 
+        stroke-width="1.5"/>
+  
+  <!-- 그라데이션 효과 -->
+  <path d="M 50 85 
+           Q 32 72, 28 52 
+           Q 28 38, 37 31 
+           Q 43 27, 50 32
+           Q 57 27, 63 31
+           Q 72 38, 72 52
+           Q 68 72, 50 85 Z" 
+        fill="#EC7063" 
+        opacity="0.6"/>
+  
+  <!-- 잎사귀들 (위쪽) -->
+  <g>
+    <!-- 중앙 잎 -->
+    <ellipse cx="50" cy="22" rx="7" ry="10" fill="#27AE60" stroke="#1E8449" stroke-width="1" transform="rotate(-10 50 22)"/>
+    
+    <!-- 좌측 잎 -->
+    <ellipse cx="40" cy="24" rx="6" ry="9" fill="#27AE60" stroke="#1E8449" stroke-width="1" transform="rotate(-30 40 24)"/>
+    
+    <!-- 우측 잎 -->
+    <ellipse cx="60" cy="24" rx="6" ry="9" fill="#27AE60" stroke="#1E8449" stroke-width="1" transform="rotate(30 60 24)"/>
+    
+    <!-- 좌측 끝 잎 -->
+    <ellipse cx="32" cy="28" rx="5" ry="7" fill="#229954" stroke="#1E8449" stroke-width="1" transform="rotate(-45 32 28)"/>
+    
+    <!-- 우측 끝 잎 -->
+    <ellipse cx="68" cy="28" rx="5" ry="7" fill="#229954" stroke="#1E8449" stroke-width="1" transform="rotate(45 68 28)"/>
+  </g>
+  
+  <!-- 표면 씨앗들 -->
+  <g fill="#F8E71C">
+    <!-- 상단 -->
+    <ellipse cx="44" cy="38" rx="1.5" ry="2" transform="rotate(-20 44 38)"/>
+    <ellipse cx="50" cy="36" rx="1.5" ry="2" transform="rotate(0 50 36)"/>
+    <ellipse cx="56" cy="38" rx="1.5" ry="2" transform="rotate(20 56 38)"/>
+    
+    <!-- 중상단 -->
+    <ellipse cx="38" cy="45" rx="1.5" ry="2" transform="rotate(-30 38 45)"/>
+    <ellipse cx="47" cy="44" rx="1.5" ry="2" transform="rotate(-10 47 44)"/>
+    <ellipse cx="53" cy="44" rx="1.5" ry="2" transform="rotate(10 53 44)"/>
+    <ellipse cx="62" cy="45" rx="1.5" ry="2" transform="rotate(30 62 45)"/>
+    
+    <!-- 중간 -->
+    <ellipse cx="35" cy="53" rx="1.5" ry="2" transform="rotate(-35 35 53)"/>
+    <ellipse cx="42" cy="52" rx="1.5" ry="2" transform="rotate(-15 42 52)"/>
+    <ellipse cx="50" cy="52" rx="1.5" ry="2" transform="rotate(0 50 52)"/>
+    <ellipse cx="58" cy="52" rx="1.5" ry="2" transform="rotate(15 58 52)"/>
+    <ellipse cx="65" cy="53" rx="1.5" ry="2" transform="rotate(35 65 53)"/>
+    
+    <!-- 중하단 -->
+    <ellipse cx="40" cy="62" rx="1.5" ry="2" transform="rotate(-25 40 62)"/>
+    <ellipse cx="48" cy="62" rx="1.5" ry="2" transform="rotate(-5 48 62)"/>
+    <ellipse cx="52" cy="62" rx="1.5" ry="2" transform="rotate(5 52 62)"/>
+    <ellipse cx="60" cy="62" rx="1.5" ry="2" transform="rotate(25 60 62)"/>
+    
+    <!-- 하단 -->
+    <ellipse cx="45" cy="72" rx="1.5" ry="2" transform="rotate(-15 45 72)"/>
+    <ellipse cx="50" cy="72" rx="1.5" ry="2" transform="rotate(0 50 72)"/>
+    <ellipse cx="55" cy="72" rx="1.5" ry="2" transform="rotate(15 55 72)"/>
+  </g>
+  
+  <!-- 하이라이트 -->
+  <ellipse cx="38" cy="38" rx="8" ry="6" fill="white" opacity="0.4"/>
+</svg>

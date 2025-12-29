@@ -1,0 +1,56 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 외곽 빨간 껍질 -->
+  <circle cx="50" cy="50" r="48" fill="#DC143C" stroke="#B22222" stroke-width="2"/>
+  
+  <!-- 크림색 과육 -->
+  <circle cx="50" cy="50" r="42" fill="#FFF8DC"/>
+  
+  <!-- 별 모양 씨방 (사과 특징) -->
+  <g fill="#D2B48C">
+    <!-- 중심 오각형 -->
+    <path d="M 50 35 L 55 45 L 65 45 L 58 52 L 60 62 L 50 55 L 40 62 L 42 52 L 35 45 L 45 45 Z"/>
+  </g>
+  
+  <!-- 5개의 씨방 -->
+  <g>
+    <!-- 위쪽 -->
+    <ellipse cx="50" cy="40" rx="3" ry="5" fill="#C19A6B"/>
+    <ellipse cx="49" cy="39" rx="1.5" ry="2" fill="#654321"/>
+    <ellipse cx="51" cy="41" rx="1.5" ry="2" fill="#654321"/>
+    
+    <!-- 우측 상단 -->
+    <ellipse cx="58" cy="46" rx="3" ry="5" fill="#C19A6B" transform="rotate(72 50 50)"/>
+    <ellipse cx="57" cy="45" rx="1.5" ry="2" fill="#654321"/>
+    <ellipse cx="59" cy="47" rx="1.5" ry="2" fill="#654321"/>
+    
+    <!-- 우측 하단 -->
+    <ellipse cx="56" cy="57" rx="3" ry="5" fill="#C19A6B" transform="rotate(144 50 50)"/>
+    <ellipse cx="55" cy="56" rx="1.5" ry="2" fill="#654321"/>
+    <ellipse cx="57" cy="58" rx="1.5" ry="2" fill="#654321"/>
+    
+    <!-- 좌측 하단 -->
+    <ellipse cx="44" cy="57" rx="3" ry="5" fill="#C19A6B" transform="rotate(216 50 50)"/>
+    <ellipse cx="43" cy="56" rx="1.5" ry="2" fill="#654321"/>
+    <ellipse cx="45" cy="58" rx="1.5" ry="2" fill="#654321"/>
+    
+    <!-- 좌측 상단 -->
+    <ellipse cx="42" cy="46" rx="3" ry="5" fill="#C19A6B" transform="rotate(288 50 50)"/>
+    <ellipse cx="41" cy="45" rx="1.5" ry="2" fill="#654321"/>
+    <ellipse cx="43" cy="47" rx="1.5" ry="2" fill="#654321"/>
+  </g>
+  
+  <!-- 중심부 -->
+  <circle cx="50" cy="50" r="8" fill="#E8D5B7"/>
+  
+  <!-- 별 모양 강조선 -->
+  <g stroke="#C19A6B" stroke-width="1" fill="none" opacity="0.6">
+    <line x1="50" y1="35" x2="50" y2="50"/>
+    <line x1="60" y1="45" x2="50" y2="50"/>
+    <line x1="58" y1="58" x2="50" y2="50"/>
+    <line x1="42" y1="58" x2="50" y2="50"/>
+    <line x1="40" y1="45" x2="50" y2="50"/>
+  </g>
+  
+  <!-- 하이라이트 -->
+  <ellipse cx="32" cy="30" rx="15" ry="10" fill="white" opacity="0.4"/>
+</svg>
