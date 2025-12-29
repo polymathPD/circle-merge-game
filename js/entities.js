@@ -1,4 +1,4 @@
-import { CONFIG, CIRCLES } from './config.js';
+import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE } from './config.js';
 
 const Bodies = window.Matter.Bodies;
 
@@ -14,7 +14,12 @@ export function createCircle(x, y, index, isStatic) {
     const body = Bodies.circle(x, y, config.radius, {
         isStatic: isStatic,
         render: {
-            fillStyle: config.color,
+            sprite: {
+                texture: config.image,
+                xScale: (config.radius * 2) / 100, // Assets are 100x100
+                yScale: (config.radius * 2) / 100
+            },
+            fillStyle: config.color, // Fallback
             strokeStyle: '#222',
             lineWidth: 1
         },
@@ -37,6 +42,11 @@ export function createSpecialCircle(x, y, isStatic) {
     const body = Bodies.circle(x, y, radius, {
         isStatic: isStatic,
         render: {
+            sprite: {
+                texture: SPECIAL_CIRCLE_IMAGE,
+                xScale: (radius * 2) / 100, // Assets are 100x100
+                yScale: (radius * 2) / 100
+            },
             fillStyle: '#000', // Distinct look
             strokeStyle: '#FFF',
             lineWidth: 3

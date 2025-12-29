@@ -25,6 +25,9 @@ body {
     max-width: 450px;
     height: 100vh;
     background-color: #fff;
+    background-image: url('data/background.svg');
+    background-size: cover;
+    background-position: center;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }

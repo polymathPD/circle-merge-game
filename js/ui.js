@@ -1,4 +1,4 @@
-import { CONFIG, CIRCLES } from './config.js';
+import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE } from './config.js';
 
 export function initLegend(container) {
     container.innerHTML = '';
@@ -15,7 +15,10 @@ export function initLegend(container) {
         const size = Math.min(32, c.radius * 2 * scale + 10); // min size ensures visibility
         circle.style.width = `${size}px`;
         circle.style.height = `${size}px`;
-        circle.style.backgroundColor = c.color;
+        circle.style.backgroundImage = `url('${c.image}')`;
+        circle.style.backgroundSize = 'contain';
+        circle.style.backgroundRepeat = 'no-repeat';
+        circle.style.backgroundPosition = 'center';
 
         item.appendChild(circle);
 
@@ -36,13 +39,17 @@ export function updateNextCirclePreview(nextCircleType, nextCircleIndex) {
     if (!nextPreview) return;
 
     if (nextCircleType === 'special') {
-        nextPreview.style.background = 'radial-gradient(circle at 30% 30%, #555, #000)';
+        nextPreview.style.backgroundImage = `url('${SPECIAL_CIRCLE_IMAGE}')`;
+        nextPreview.style.backgroundSize = 'contain';
     } else {
         // Safety check
         if (CIRCLES[nextCircleIndex]) {
-            nextPreview.style.background = CIRCLES[nextCircleIndex].color;
+            nextPreview.style.backgroundImage = `url('${CIRCLES[nextCircleIndex].image}')`;
+            nextPreview.style.backgroundSize = 'contain';
         }
     }
+    nextPreview.style.backgroundRepeat = 'no-repeat';
+    nextPreview.style.backgroundPosition = 'center';
 }
 
 export function updateScoreDisplay(currentScore) {
