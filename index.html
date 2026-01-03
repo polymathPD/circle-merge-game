@@ -22,20 +22,58 @@
             document.body.appendChild(div);
             return false;
         };
-        // // Check for Matter
-        // window.addEventListener('load', () => {
-        //     if (!window.Matter) {
-        //         const div = document.createElement('div');
-        //         div.style.color = 'red';
-        //         div.textContent = 'Matter.js fail to load!';
-        //         document.body.appendChild(div);
-        //     }
-        // });
     </script>
 </head>
 
 <body>
+    <!-- 로그인 모달 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h2>Circle Merge Game</h2>
+            <p>로그인하고 친구들과 점수를 겨뤄보세요!</p>
+            <button id="google-login-btn" class="login-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Google로 로그인
+            </button>
+        </div>
+    </div>
+    
+    <!-- 닉네임 설정 모달 -->
+    <div id="nickname-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>닉네임 설정</h2>
+            <p>게임에서 사용할 닉네임을 입력해주세요</p>
+            <input type="text" id="nickname-input" placeholder="닉네임 (2-10자)" maxlength="10">
+            <button id="nickname-submit-btn" class="submit-btn">확인</button>
+            <p id="nickname-error" class="error-msg"></p>
+        </div>
+    </div>
+    
+    <!-- 스코어보드 모달 -->
+    <div id="scoreboard-modal" class="modal" style="display: none;">
+        <div class="modal-content scoreboard-content">
+            <span class="close-btn" id="close-scoreboard">&times;</span>
+            <h2>🏆 랭킹</h2>
+            <div id="scoreboard-tabs">
+                <button class="tab-btn active" data-tab="global">전체 랭킹</button>
+                <button class="tab-btn" data-tab="personal">내 기록</button>
+            </div>
+            <div id="scoreboard-list">
+                <!-- 랭킹 목록이 여기에 표시됩니다 -->
+            </div>
+        </div>
+    </div>
+
     <div id="game-container">
+        <!-- 상단 헤더 (사용자 정보 + 스코어보드 버튼) -->
+        <div id="game-header">
+            <div id="user-info">
+                <span id="user-nickname">Guest</span>
+                <button id="logout-btn" style="display: none;">로그아웃</button>
+            </div>
+            <button id="show-scoreboard-btn" class="icon-btn">🏆</button>
+        </div>
+
         <div id="ui-layer">
             <div id="score-board">Score: <span id="score">0</span></div>
             <div id="next-circle-container">

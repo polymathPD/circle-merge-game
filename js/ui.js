@@ -92,14 +92,18 @@ export function updateScoreBar(currentScore) {
 
 export function showGameOver(score, onRestart) {
     const scoreBoard = document.getElementById('score-board');
-    scoreBoard.innerHTML = `GAME OVER! Score: ${score}<br><span style="font-size:16px; color: red;">Click to Restart</span>`;
-    scoreBoard.style.backgroundColor = 'rgba(255,255,255,0.9)';
-    scoreBoard.style.padding = '10px';
+    scoreBoard.innerHTML = `
+        GAME OVER! Score: ${score.toLocaleString()}<br>
+        <span style="font-size:14px; color: #666;">점수가 저장되었습니다!</span><br>
+        <span style="font-size:16px; color: red;">Click to Restart</span>
+    `;
+    scoreBoard.style.backgroundColor = 'rgba(255,255,255,0.95)';
+    scoreBoard.style.padding = '15px';
     scoreBoard.style.borderRadius = '10px';
+    scoreBoard.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
 
     const container = document.getElementById('game-container');
     container.onclick = (e) => {
-        // Prevent click from propagating if needed, but here we just want reload/restart
         onRestart();
     };
 }
