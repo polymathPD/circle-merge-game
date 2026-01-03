@@ -2,6 +2,7 @@ import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE } from './config.js';
 import { createCircle, createSpecialCircle } from './entities.js';
 import * as UI from './ui.js';
 import { InputHandler } from './input.js';
+import { getParticleSystem, destroyParticleSystem } from './effects.js';
 
 const { Engine, Render, Runner, World, Bodies, Body, Events, Composite } = window.Matter;
 
@@ -25,6 +26,7 @@ export class Game {
         this.isDropping = false;
         this.lastCheckTime = Date.now();
         this.lastDropTime = 0;
+        this.particleSystem = getParticleSystem();
     }
 
     init() {
@@ -268,6 +270,14 @@ export class Game {
             const midX = (bodyA.position.x + bodyB.position.x) / 2;
             const midY = (bodyA.position.y + bodyB.position.y) / 2;
 
+            const newCircle = CIRCLES[newIndex];
+            const particleColor = this.getColorFromImage(newCircle.image) || '#4CAF50';
+            this.particleSystem.createMergeParticles(midX, midY, particleColor, 15);
+
+            if (newIndex === CIRCLES.length - 1) {
+                this.particleSystem.createWatermelonCelebration(midX, midY);
+            }
+
             this.currentScore += CIRCLES[newIndex].score;
             this.updateUI();
 
@@ -359,6 +369,8 @@ export class Game {
         if (this.runner) {
             Runner.stop(this.runner);
         }
+
+        destroyParticleSystem();
     }
 
     handleResize() {
@@ -368,5 +380,24 @@ export class Game {
             this.cleanup();
             location.reload();
         }, 300);
+    }
+
+    getColorFromImage(imagePath) {
+        // 각 과일별 색상 매핑
+        const colorMap = {
+            'circle_0_grape.svg': '#8B7DB8',
+            'circle_1_strawberry.svg': '#FF6B9D',
+            'circle_2_kiwi.svg': '#8BC34A',
+            'circle_3_lemon.svg': '#FFF176',
+            'circle_4_tomato.svg': '#FF5252',
+            'circle_5_orange.svg': '#FF9800',
+            'circle_6_peach.svg': '#FFCCBC',
+            'circle_7_apple.svg': '#F44336',
+            'circle_8_melon.svg': '#C8E6C9',
+            'circle_9_watermelon.svg': '#4CAF50'
+        };
+        
+        const filename = imagePath.split('/').pop();
+        return colorMap[filename] || '#4CAF50';
     }
 }
