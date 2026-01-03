@@ -91,19 +91,78 @@ export function updateScoreBar(currentScore) {
 }
 
 export function showGameOver(score, onRestart) {
-    const scoreBoard = document.getElementById('score-board');
-    scoreBoard.innerHTML = `
-        GAME OVER! Score: ${score.toLocaleString()}<br>
-        <span style="font-size:14px; color: #666;">점수가 저장되었습니다!</span><br>
-        <span style="font-size:16px; color: red;">Click to Restart</span>
+    // 게임 오버 시 화면을 어둡게 처리
+    const overlay = document.createElement('div');
+    overlay.id = 'game-over-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 500;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     `;
-    scoreBoard.style.backgroundColor = 'rgba(255,255,255,0.95)';
-    scoreBoard.style.padding = '15px';
-    scoreBoard.style.borderRadius = '10px';
-    scoreBoard.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-
-    const container = document.getElementById('game-container');
-    container.onclick = (e) => {
+    
+    const gameOverBox = document.createElement('div');
+    gameOverBox.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+    `;
+    
+    gameOverBox.innerHTML = `
+        <h2 style="margin: 0 0 20px 0; color: #333; font-size: 28px;">게임 오버!</h2>
+        <div style="font-size: 48px; font-weight: bold; color: #4CAF50; margin: 20px 0;">
+            ${score.toLocaleString()}
+        </div>
+        <p style="color: #666; margin-bottom: 20px;">점수가 저장되었습니다!</p>
+        <button id="view-scoreboard-btn" style="
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        ">🏆 랭킹 보기</button>
+        <button id="restart-btn" style="
+            width: 100%;
+            padding: 15px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        ">🔄 다시 시작</button>
+    `;
+    
+    overlay.appendChild(gameOverBox);
+    document.body.appendChild(overlay);
+    
+    // 랭킹 보기 버튼
+    document.getElementById('view-scoreboard-btn').onclick = () => {
+        const showScoreboardBtn = document.getElementById('show-scoreboard-btn');
+        if (showScoreboardBtn) {
+            showScoreboardBtn.click();
+        }
+    };
+    
+    // 재시작 버튼
+    document.getElementById('restart-btn').onclick = () => {
+        overlay.remove();
         onRestart();
     };
 }

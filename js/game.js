@@ -319,40 +319,24 @@ export class Game {
     }
 
     async endGame() {
-        this.gameOver = true;
-        this.cleanup();
-
-        // Firebase에 점수 저장
-        const { currentUser } = await import('./main.js');
-        const { saveScore } = await import('./scoreboard.js');
-
-        if (currentUser && currentUser.nickname) {
-            try {
-                await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
-                console.log('✅ 점수 저장 완료:', this.currentScore);
-            } catch (error) {
-                console.error('❌ 점수 저장 실패:', error);
-            }
+    this.gameOver = true;
+    this.cleanup();
+    
+    // Firebase에 점수 저장
+    const { currentUser } = await import('./main.js');
+    const { saveScore } = await import('./scoreboard.js');
+    
+    if (currentUser && currentUser.nickname) {
+        try {
+            await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
+            console.log('✅ 점수 저장 완료:', this.currentScore);
+        } catch (error) {
+            console.error('❌ 점수 저장 실패:', error);
         }
-
-        // 게임 오버 메시지 표시
-        UI.showGameOver(this.currentScore, () => {
-            // 스코어보드 닫기 이벤트도 제거
-            const scoreboardModal = document.getElementById('scoreboard-modal');
-            if (scoreboardModal) {
-                scoreboardModal.style.display = 'none';
-            }
-            location.reload();
-        });
-
-        // 1초 후 스코어보드 자동으로 표시
-        setTimeout(() => {
-            const scoreboardModal = document.getElementById('scoreboard-modal');
-            const showScoreboardBtn = document.getElementById('show-scoreboard-btn');
-            if (scoreboardModal && showScoreboardBtn) {
-                showScoreboardBtn.click(); // 스코어보드 열기 버튼 클릭
-            }
-        }, 1000);
+    }
+    
+    // 게임 오버 화면 표시 (스코어보드는 사용자가 선택)
+    UI.showGameOver(this.currentScore, () => location.reload());
     }
 
     cleanup() {
