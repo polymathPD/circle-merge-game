@@ -1,15 +1,15 @@
 // js/auth.js
 import { auth, db } from './firebase-config.js';
-import { 
-  GoogleAuthProvider, 
-  signInWithPopup, 
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
   signOut,
-  onAuthStateChanged 
+  onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { 
-  doc, 
-  getDoc, 
-  setDoc 
+import {
+  doc,
+  getDoc,
+  setDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 let currentUser = null;
@@ -20,10 +20,10 @@ export async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-    
+
     // 사용자 정보 확인
     const userDoc = await getDoc(doc(db, 'users', user.uid));
-    
+
     if (!userDoc.exists()) {
       // 최초 로그인 - 닉네임 설정 필요
       return { user, needsNickname: true };
@@ -45,7 +45,7 @@ export async function setNickname(userId, nickname) {
       nickname: nickname,
       createdAt: new Date()
     });
-    
+
     const user = auth.currentUser;
     currentUser = { ...user, nickname };
     return true;

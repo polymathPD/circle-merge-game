@@ -40,14 +40,12 @@ export function updateNextCirclePreview(nextCircleType, nextCircleIndex) {
 
     if (nextCircleType === 'special') {
         nextPreview.style.backgroundImage = `url('${SPECIAL_CIRCLE_IMAGE}')`;
-        nextPreview.style.backgroundSize = 'contain';
-    } else {
-        // Safety check
-        if (CIRCLES[nextCircleIndex]) {
-            nextPreview.style.backgroundImage = `url('${CIRCLES[nextCircleIndex].image}')`;
-            nextPreview.style.backgroundSize = 'contain';
-        }
+    } else if (CIRCLES[nextCircleIndex]) {
+        nextPreview.style.backgroundImage = `url('${CIRCLES[nextCircleIndex].image}')`;
     }
+
+    // 공통 설정
+    nextPreview.style.backgroundSize = 'contain';
     nextPreview.style.backgroundRepeat = 'no-repeat';
     nextPreview.style.backgroundPosition = 'center';
 }
@@ -106,7 +104,7 @@ export function showGameOver(score, onRestart) {
         justify-content: center;
         align-items: center;
     `;
-    
+
     const gameOverBox = document.createElement('div');
     gameOverBox.style.cssText = `
         background: white;
@@ -117,7 +115,7 @@ export function showGameOver(score, onRestart) {
         max-width: 400px;
         width: 90%;
     `;
-    
+
     gameOverBox.innerHTML = `
         <h2 style="margin: 0 0 20px 0; color: #333; font-size: 28px;">게임 오버!</h2>
         <div style="font-size: 48px; font-weight: bold; color: #4CAF50; margin: 20px 0;">
@@ -148,10 +146,10 @@ export function showGameOver(score, onRestart) {
             cursor: pointer;
         ">🔄 다시 시작</button>
     `;
-    
+
     overlay.appendChild(gameOverBox);
     document.body.appendChild(overlay);
-    
+
     // 랭킹 보기 버튼
     document.getElementById('view-scoreboard-btn').onclick = () => {
         const showScoreboardBtn = document.getElementById('show-scoreboard-btn');
@@ -159,7 +157,7 @@ export function showGameOver(score, onRestart) {
             showScoreboardBtn.click();
         }
     };
-    
+
     // 재시작 버튼
     document.getElementById('restart-btn').onclick = () => {
         overlay.remove();

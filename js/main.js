@@ -2,7 +2,6 @@ import { Game } from './game.js';
 import { ImageLoader } from './imageLoader.js';
 import { signInWithGoogle, setNickname, logout, onUserStateChange, getCurrentUser } from './auth.js';
 import { getTopScores, getUserScores } from './scoreboard.js';
-import { auth } from './firebase-config.js';  // 이 줄 추가!
 
 console.log('🔵 main.js 모듈 로드됨!');
 
@@ -57,7 +56,7 @@ nicknameSubmitBtn.addEventListener('click', async () => {
 
     try {
         nicknameSubmitBtn.disabled = true;
-        const user = auth.currentUser;
+        const user = getCurrentUser();
         await setNickname(user.uid, nickname);
 
         nicknameModal.style.display = 'none';
@@ -74,8 +73,17 @@ nicknameSubmitBtn.addEventListener('click', async () => {
 // 로그아웃
 logoutBtn.addEventListener('click', async () => {
     if (confirm('정말 로그아웃 하시겠습니까?')) {
+        if (game) {
+            game.cleanup();
+            game = null;
+        }
         await logout();
-        location.reload();
+        isGameStarted = false;  // ← 이게 핵심!
+
+        // UI 초기화
+        loginModal.style.display = 'flex';
+        nicknameModal.style.display = 'none';
+        scoreboardModal.style.display = 'none';
     }
 });
 
@@ -172,8 +180,6 @@ async function loadScoreboard(tab) {
 
 // 게임 시작
 async function startGame() {
-    console.log('🟢 startGame 함수 실행!');
-
     // 로딩 화면 표시
     const loadingDiv = document.createElement('div');
     loadingDiv.id = 'loading';
@@ -182,12 +188,9 @@ async function startGame() {
     document.body.appendChild(loadingDiv);
 
     // 이미지 프리로드
-    console.log('🟡 ImageLoader 생성');
     const imageLoader = new ImageLoader();
 
-    console.log('🟠 preloadAll 호출');
     const success = await imageLoader.preloadAll();
-    console.log('🟠 preloadAll 결과:', success);
 
     if (success) {
         loadingDiv.remove();
@@ -222,10 +225,8 @@ onUserStateChange(async (user) => {
 if (document.readyState === 'loading') {
     console.log('⏳ DOM 로딩 대기 중...');
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('✅ DOM 로드 완료');
     });
 } else {
-    console.log('✅ DOM 이미 로드됨');
 }
 
 // game 인스턴스를 외부에서 접근 가능하도록 export
