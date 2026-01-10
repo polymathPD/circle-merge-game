@@ -7,8 +7,6 @@ export class ImageLoader {
     }
 
     async preloadAll() {
-        console.log('=== 이미지 프리로드 시작 ===');
-
         const imagePromises = [];
 
         // 모든 circle 이미지 로드
@@ -22,7 +20,6 @@ export class ImageLoader {
 
         try {
             await Promise.all(imagePromises);
-            console.log('✅ 모든 이미지 로드 완료!');
             console.log('로드된 이미지:', Object.keys(this.images));
             this.loaded = true;
             return true;
@@ -38,7 +35,6 @@ export class ImageLoader {
 
             img.onload = () => {
                 this.images[key] = img;
-                console.log(`✅ 로드 성공: ${key} (${src})`);
                 resolve(img);
             };
 
