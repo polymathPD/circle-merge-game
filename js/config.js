@@ -5,9 +5,22 @@ export const CONFIG = {
         gravity: 1.3,
         restitution: 0.50
     },
-    DEADLINE_Y: 150,
+    // ✨ DEADLINE 계산:
+    // - Circle 스폰: y=135
+    // - Special Circle 최대 radius: ~32
+    // - Circle 아래쪽: 135 + 32 = 167
+    // - 안전 거리: 13px
+    // - DEADLINE: 167 + 13 = 180
+    DEADLINE_Y: 180,
     LEGEND_HEIGHT: 60, // Must match CSS
-    SCORE_MILESTONES: [0, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+    SCORE_MILESTONES: [0, 500, 1000, 2000, 5000, 10000, 20000, 50000],
+    // Special Circle Settings
+    SPECIAL: {
+        PROBABILITY: 0.02,        // 2% 확률
+        MIN_LEVEL: 6,             // 7단계(복숭아, index 6)부터 출현
+        COOLDOWN_TURNS: 5,        // 출현 후 5턴 쿨다운
+        RADIUS_MULTIPLIER: 1.7    // 딸기(index 1) 정도 크기
+    }
 };
 
 // Circle Definitions

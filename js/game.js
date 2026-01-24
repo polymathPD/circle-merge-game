@@ -27,6 +27,11 @@ export class Game {
         this.lastCheckTime = Date.now();
         this.lastDropTime = 0;
         this.particleSystem = getParticleSystem();
+        
+        // ✨ Special circle 관리 변수
+        this.maxReachedIndex = 0;         // 도달한 최고 단계
+        this.turnsSinceLastSpecial = 0;   // 마지막 special 이후 턴 수
+        this.totalTurns = 0;               // 전체 턴 수 (디버깅용)
     }
 
     init() {
@@ -137,27 +142,44 @@ export class Game {
         const ctx = this.render.context;
         const width = this.render.canvas.width;
 
+        // ✨ 위험 영역 배경 (반투명 빨간색)
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, width, CONFIG.DEADLINE_Y);
+
+        // ✨ Deadline 선 (더 눈에 띄게)
         ctx.beginPath();
         ctx.moveTo(0, CONFIG.DEADLINE_Y);
         ctx.lineTo(width, CONFIG.DEADLINE_Y);
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = '#FF5252';
         ctx.lineWidth = 2;
-        ctx.setLineDash([]);
+        ctx.setLineDash([8, 4]); // 점선 패턴
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.font = '12px Arial';
-        ctx.fillText('DEADLINE', 5, CONFIG.DEADLINE_Y - 5);
+        // ✨ 텍스트 배경
+        ctx.fillStyle = 'rgba(255, 82, 82, 0.9)';
+        ctx.fillRect(5, CONFIG.DEADLINE_Y - 18, 70, 16);
+
+        // ✨ 텍스트
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText('DEADLINE', 10, CONFIG.DEADLINE_Y - 7);
     }
 
     generateNextCircle() {
-        // 10% Chance for Special
-        if (Math.random() < 0.1) {
+        // ✨ Special circle 생성 조건 체크
+        const canSpawnSpecial = 
+            this.maxReachedIndex >= CONFIG.SPECIAL.MIN_LEVEL &&  // 최소 레벨 도달
+            this.turnsSinceLastSpecial >= CONFIG.SPECIAL.COOLDOWN_TURNS;  // 쿨다운 완료
+
+        if (canSpawnSpecial && Math.random() < CONFIG.SPECIAL.PROBABILITY) {
+            // Special circle 생성
             this.nextCircleType = 'special';
             this.nextCircleIndex = 0;
+            console.log('✨ Special circle 생성! (턴:', this.totalTurns, ', 최고 레벨:', this.maxReachedIndex, ')');
         } else {
+            // Normal circle 생성 (0, 1, 2 중 랜덤)
             this.nextCircleType = 'normal';
-            this.nextCircleIndex = Math.floor(Math.random() * 3); // 0, 1, or 2
+            this.nextCircleIndex = Math.floor(Math.random() * 3);
         }
     }
 
@@ -167,6 +189,15 @@ export class Game {
         // Move Next to Current
         this.currentCircleType = this.nextCircleType;
         this.currentCircleIndex = this.nextCircleIndex;
+
+        // ✨ Special circle가 사용되면 쿨다운 초기화
+        if (this.currentCircleType === 'special') {
+            this.turnsSinceLastSpecial = 0;
+        } else {
+            this.turnsSinceLastSpecial++;
+        }
+        
+        this.totalTurns++;
 
         // Generate new Next
         this.generateNextCircle();
@@ -182,10 +213,15 @@ export class Game {
         if (this.currentCircleBody || this.gameOver) return;
 
         let body;
+        // ✨ 스폰 위치를 점수바 아래로 이동 (y=135)
+        const spawnY = 135;
+        
         if (this.currentCircleType === 'special') {
-            body = createSpecialCircle(x, 90, true);
+            body = createSpecialCircle(x, spawnY, true);
+            // ✨ Special circle를 ParticleSystem에 등록
+            this.particleSystem.registerSpecialCircle(body);
         } else {
-            body = createCircle(x, 90, this.currentCircleIndex, true);
+            body = createCircle(x, spawnY, this.currentCircleIndex, true);
         }
 
         this.currentCircleBody = body;
@@ -201,7 +237,8 @@ export class Game {
         const minX = radius;
 
         x = Math.max(minX, Math.min(x, maxX));
-        Body.setPosition(this.currentCircleBody, { x: x, y: 90 });
+        // ✨ 스폰 위치와 일치 (y=135)
+        Body.setPosition(this.currentCircleBody, { x: x, y: 135 });
     }
 
     handleInputDrop() {
@@ -270,12 +307,21 @@ export class Game {
         }
 
         if (shouldMerge && newIndex >= 0 && newIndex < CIRCLES.length) {
-            bodyA.toRemove = true;
-            bodyB.toRemove = true;
-            // 다음 프레임에 제거
-            setTimeout(() => {
-                World.remove(this.engine.world, [bodyA, bodyB]);
-            }, 0);
+            // ✨ 최고 도달 레벨 업데이트
+            if (newIndex > this.maxReachedIndex) {
+                this.maxReachedIndex = newIndex;
+                console.log('🎯 새로운 최고 레벨 달성:', newIndex, CIRCLES[newIndex].score);
+            }
+
+            // ✨ Special circle 제거 시 등록 해제
+            if (bodyA.circleType === 'special') {
+                this.particleSystem.unregisterSpecialCircle(bodyA);
+            }
+            if (bodyB.circleType === 'special') {
+                this.particleSystem.unregisterSpecialCircle(bodyB);
+            }
+
+            World.remove(this.engine.world, [bodyA, bodyB]);
 
             const midX = (bodyA.position.x + bodyB.position.x) / 2;
             const midY = (bodyA.position.y + bodyB.position.y) / 2;

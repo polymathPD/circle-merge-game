@@ -37,8 +37,9 @@ export function createCircle(x, y, index, isStatic) {
 }
 
 export function createSpecialCircle(x, y, isStatic) {
-    // Special is small, like index 0 size
-    const radius = CIRCLES[0].radius;
+    // ✨ Special circle 크기: 딸기(index 1) 정도로 설정
+    const baseRadius = CIRCLES[1].radius; // 19
+    const radius = baseRadius * CONFIG.SPECIAL.RADIUS_MULTIPLIER; // ~32
 
     const body = Bodies.circle(x, y, radius, {
         isStatic: isStatic,
@@ -48,9 +49,9 @@ export function createSpecialCircle(x, y, isStatic) {
                 xScale: (radius * 2) / 100, // Assets are 100x100
                 yScale: (radius * 2) / 100
             },
-            fillStyle: '#000', // Distinct look
-            strokeStyle: '#FFF',
-            lineWidth: 3
+            fillStyle: '#FFD700', // 황금색 폴백
+            strokeStyle: '#FFA500',
+            lineWidth: 2
         },
         restitution: Math.min(1.0, CONFIG.PHYSICS.restitution + 0.2)
     });
