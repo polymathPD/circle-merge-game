@@ -69,21 +69,18 @@ export class Game {
 
         if (this.imageLoader && this.imageLoader.loaded) {
             const images = this.imageLoader.getAllImages();
-            console.log('🎨 Matter.js에 텍스처 등록 중...');
 
             // Render의 텍스처 캐시에 등록
             CIRCLES.forEach((circle, index) => {
                 const img = images[`circle_${index}`];
                 if (img) {
                     this.render.textures[circle.image] = img;
-                    console.log(`✅ 텍스처 등록: circle_${index}`);
                 }
             });
 
             const specialImg = images['special'];
             if (specialImg) {
                 this.render.textures[SPECIAL_CIRCLE_IMAGE] = specialImg;
-                console.log(`✅ 텍스처 등록: special`);
             }
         }
 
@@ -109,8 +106,15 @@ export class Game {
         this.generateNextCircle(); // Generate the first 'next'
         this.prepareNextTurn(); // Move 'next' to 'current' and generate new 'next'
 
+        // Orientation
+        this.currentOrientation = this.getOrientation();
+
         // Resize handler
         window.addEventListener('resize', () => this.handleResize());
+    }
+
+    getOrientation() {
+        return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
     }
 
     createBoundaries(width, height) {
@@ -246,7 +250,7 @@ export class Game {
             this.currentCircleBody = null;
 
             setTimeout(() => {
-                if (!this.gameOver) {
+                if (!this.gameOver && this.engine) {
                     this.prepareNextTurn();
                     this.isDropping = false;
                 }
@@ -279,6 +283,7 @@ export class Game {
     }
 
     attemptMerge(bodyA, bodyB) {
+        if (bodyA.toRemove || bodyB.toRemove) return;
         let shouldMerge = false;
         let newIndex = -1;
 
@@ -355,7 +360,7 @@ export class Game {
         let underThreat = false;
 
         for (const body of bodies) {
-            if (!body.isStatic && body.circleRadius) {  // circleRadius로 원인지 체크
+            if (!body.isStatic && body.circleRadius !== undefined) {
                 if (body.position.y - body.circleRadius < CONFIG.DEADLINE_Y && body.speed < 0.5) {
                     underThreat = true;
                     break;
@@ -380,24 +385,22 @@ export class Game {
     }
 
     async endGame() {
-    this.gameOver = true;
-    this.cleanup();
-    
-    // Firebase에 점수 저장
-    const { currentUser } = await import('./main.js');
-    const { saveScore } = await import('./scoreboard.js');
-    
-    if (currentUser && currentUser.nickname) {
-        try {
-            await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
-            console.log('✅ 점수 저장 완료:', this.currentScore);
-        } catch (error) {
-            console.error('❌ 점수 저장 실패:', error);
+        this.gameOver = true;
+        this.cleanup();
+
+        // Firebase에 점수 저장
+        const { currentUser } = await import('./main.js');
+        const { saveScore } = await import('./scoreboard.js');
+
+        if (currentUser && currentUser.nickname) {
+            try {
+                await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
+            } catch (error) {
+            }
         }
-    }
-    
-    // 게임 오버 화면 표시 (스코어보드는 사용자가 선택)
-    UI.showGameOver(this.currentScore, () => location.reload());
+
+        // 게임 오버 화면 표시 (스코어보드는 사용자가 선택)
+        UI.showGameOver(this.currentScore, () => location.reload());
     }
 
     cleanup() {
@@ -421,10 +424,31 @@ export class Game {
             Runner.stop(this.runner);
         }
 
+        if (this.inputHandler) {
+            this.inputHandler.destroy();
+            this.inputHandler = null;
+        }
+
         destroyParticleSystem();
     }
 
     handleResize() {
+
+        if (window.innerWidth > 768) {
+            return;
+        }
+        const newOrientation = this.getOrientation();
+
+        if (this.currentOrientation !== newOrientation) {
+            // Debounce
+            if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = setTimeout(() => {
+                this.cleanup();
+                location.reload();
+            }, 300);
+
+            this.currentOrientation = newOrientation;
+        }
         // Simple debounce
         if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
         this.resizeTimeout = setTimeout(() => {
@@ -447,7 +471,7 @@ export class Game {
             'circle_8_melon.svg': '#C8E6C9',
             'circle_9_watermelon.svg': '#4CAF50'
         };
-        
+
         const filename = imagePath.split('/').pop();
         return colorMap[filename] || '#4CAF50';
     }
