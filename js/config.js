@@ -7,7 +7,14 @@ export const CONFIG = {
     },
     DEADLINE_Y: 150,
     LEGEND_HEIGHT: 60, // Must match CSS
-    SCORE_MILESTONES: [0, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+    SCORE_MILESTONES: [0, 500, 1000, 2000, 5000, 10000, 20000, 50000],
+    // Special Circle Settings
+    SPECIAL: {
+        PROBABILITY: 0.02,        // 2% 확률
+        MIN_LEVEL: 6,             // 7단계(복숭아, index 6)부터 출현
+        COOLDOWN_TURNS: 5,        // 출현 후 5턴 쿨다운
+        RADIUS_MULTIPLIER: 1.7    // 딸기(index 1) 정도 크기
+    }
 };
 
 // Circle Definitions
