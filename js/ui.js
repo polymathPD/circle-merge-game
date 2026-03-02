@@ -1,4 +1,4 @@
-import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE } from './config.js';
+import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE, BACKGROUNDS } from './config.js';
 
 export function initLegend(container) {
     container.innerHTML = '';
@@ -7,12 +7,10 @@ export function initLegend(container) {
         const item = document.createElement('div');
         item.className = 'legend-item';
 
-        // Circle visual
         const circle = document.createElement('div');
         circle.className = 'legend-circle';
-        // Scale down for legend? Say max 32px
         const scale = 0.3;
-        const size = Math.min(32, c.radius * 2 * scale + 10); // min size ensures visibility
+        const size = Math.min(32, c.radius * 2 * scale + 10);
         circle.style.width = `${size}px`;
         circle.style.height = `${size}px`;
         circle.style.backgroundImage = `url('${c.image}')`;
@@ -22,11 +20,10 @@ export function initLegend(container) {
 
         item.appendChild(circle);
 
-        // Arrow if not last
         if (index < CIRCLES.length - 1) {
             const arrow = document.createElement('span');
             arrow.className = 'legend-arrow';
-            arrow.innerHTML = '&#9654;'; // Triangle arrow
+            arrow.innerHTML = '&#9654;';
             item.appendChild(arrow);
         }
 
@@ -44,7 +41,6 @@ export function updateNextCirclePreview(nextCircleType, nextCircleIndex) {
         nextPreview.style.backgroundImage = `url('${CIRCLES[nextCircleIndex].image}')`;
     }
 
-    // 공통 설정
     nextPreview.style.backgroundSize = 'contain';
     nextPreview.style.backgroundRepeat = 'no-repeat';
     nextPreview.style.backgroundPosition = 'center';
@@ -61,7 +57,6 @@ export function updateScoreBar(currentScore) {
 
     if (!scoreBarFill || !scoreBarText) return;
 
-    // 현재 마일스톤 찾기
     let currentMilestone = 0;
     let nextMilestone = CONFIG.SCORE_MILESTONES[1];
 
@@ -74,22 +69,95 @@ export function updateScoreBar(currentScore) {
         }
     }
 
-    // 마지막 마일스톤 넘은 경우
     if (currentScore >= CONFIG.SCORE_MILESTONES[CONFIG.SCORE_MILESTONES.length - 1]) {
         currentMilestone = CONFIG.SCORE_MILESTONES[CONFIG.SCORE_MILESTONES.length - 1];
         nextMilestone = currentMilestone * 2;
     }
 
-    // 진행률 계산
     const progress = ((currentScore - currentMilestone) / (nextMilestone - currentMilestone)) * 100;
     scoreBarFill.style.width = Math.min(100, progress) + '%';
-
-    // 텍스트 업데이트
     scoreBarText.innerText = `${currentScore} / ${nextMilestone}`;
 }
 
+// ✨ 배경 오버레이 초기화 (게임 시작 시 1회 호출)
+export function initBackground() {
+    const container = document.getElementById('game-container');
+    if (!container || document.getElementById('bg-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'bg-overlay';
+    // 강제로 초기 업데이트가 동작하도록 존재하지 않는 레벨로 초기화
+    overlay.dataset.level = '-1';
+
+    // game-container의 첫 번째 자식으로 삽입 → z-index 1로 배경 SVG를 대체
+    container.insertBefore(overlay, container.firstChild);
+
+    updateBackground(0);
+}
+
+// 현재 적용된 배경 레벨 추적 (모듈 스코프)
+let _currentBgMinScore = -1;
+
+// ✨ 점수에 따라 배경 업데이트
+// updateUI()에서 매번 호출되지만, 실제 배경이 바뀔 때만 DOM 조작
+export function updateBackground(score) {
+    const overlay = document.getElementById('bg-overlay');
+    if (!overlay) return;
+
+    // 현재 점수에 해당하는 배경 찾기 (역순 탐색)
+    let bg = BACKGROUNDS[0];
+    for (let i = BACKGROUNDS.length - 1; i >= 0; i--) {
+        if (score >= BACKGROUNDS[i].minScore) {
+            bg = BACKGROUNDS[i];
+            break;
+        }
+    }
+
+    // 이미 같은 배경이면 아무것도 하지 않음
+    if (_currentBgMinScore === bg.minScore) return;
+    _currentBgMinScore = bg.minScore;
+
+    // 배경 그라데이션 적용 (CSS transition이 부드럽게 처리)
+    overlay.style.background = bg.background;
+
+    // game-container에 테마 attribute 설정 → CSS로 텍스트 색상 자동 전환
+    const container = document.getElementById('game-container');
+    if (container) {
+        container.dataset.theme = bg.textDark ? 'light' : 'dark';
+    }
+
+    // 배경 전환 라벨 표시 (초기 배경 제외)
+    if (bg.label) {
+        _showBackgroundLabel(bg.label);
+    }
+}
+
+// ✨ 배경 전환 시 잠깐 표시되는 라벨 (내부 함수)
+function _showBackgroundLabel(label) {
+    const existing = document.getElementById('bg-label');
+    if (existing) existing.remove();
+
+    const container = document.getElementById('game-container');
+    if (!container) return;
+
+    const el = document.createElement('div');
+    el.id = 'bg-label';
+    el.textContent = label;
+    el.style.cssText = `
+        position: absolute;
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 150;
+        pointer-events: none;
+        animation: bgLabelFade 2.5s ease-out forwards;
+    `;
+
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+}
+
 export function showGameOver(score, onRestart) {
-    // 게임 오버 시 화면을 어둡게 처리
     const overlay = document.createElement('div');
     overlay.id = 'game-over-overlay';
     overlay.style.cssText = `
@@ -150,15 +218,11 @@ export function showGameOver(score, onRestart) {
     overlay.appendChild(gameOverBox);
     document.body.appendChild(overlay);
 
-    // 랭킹 보기 버튼
     document.getElementById('view-scoreboard-btn').onclick = () => {
         const showScoreboardBtn = document.getElementById('show-scoreboard-btn');
-        if (showScoreboardBtn) {
-            showScoreboardBtn.click();
-        }
+        if (showScoreboardBtn) showScoreboardBtn.click();
     };
 
-    // 재시작 버튼
     document.getElementById('restart-btn').onclick = () => {
         overlay.remove();
         onRestart();
