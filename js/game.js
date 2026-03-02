@@ -27,11 +27,16 @@ export class Game {
         this.lastCheckTime = Date.now();
         this.lastDropTime = 0;
         this.particleSystem = getParticleSystem();
-        
+
         // ✨ Special circle 관리 변수
-        this.maxReachedIndex = 0;         // 도달한 최고 단계
-        this.turnsSinceLastSpecial = 0;   // 마지막 special 이후 턴 수
-        this.totalTurns = 0;               // 전체 턴 수 (디버깅용)
+        this.maxReachedIndex = 0;
+        this.turnsSinceLastSpecial = 0;
+        this.totalTurns = 0;
+
+        // ✨ 콤보 시스템 변수
+        this.comboCount = 0;          // 현재 콤보 횟수
+        this.comboResetTimer = null;  // 콤보 리셋 타이머
+        this.lastMergeTime = 0;       // 마지막 합체 시각
     }
 
     init() {
@@ -39,6 +44,8 @@ export class Game {
         const legend = document.getElementById('evolution-legend');
 
         UI.initLegend(legend);
+        // ✨ 배경 오버레이 초기화
+        UI.initBackground();
 
         // Dimensions
         const totalHeight = window.innerHeight;
@@ -70,7 +77,6 @@ export class Game {
         if (this.imageLoader && this.imageLoader.loaded) {
             const images = this.imageLoader.getAllImages();
 
-            // Render의 텍스처 캐시에 등록
             CIRCLES.forEach((circle, index) => {
                 const img = images[`circle_${index}`];
                 if (img) {
@@ -103,8 +109,8 @@ export class Game {
         });
 
         // Start
-        this.generateNextCircle(); // Generate the first 'next'
-        this.prepareNextTurn(); // Move 'next' to 'current' and generate new 'next'
+        this.generateNextCircle();
+        this.prepareNextTurn();
 
         // Orientation
         this.currentOrientation = this.getOrientation();
@@ -142,42 +148,35 @@ export class Game {
         const ctx = this.render.context;
         const width = this.render.canvas.width;
 
-        // ✨ 위험 영역 배경 (반투명 빨간색)
         ctx.fillStyle = 'rgba(255, 0, 0, 0.05)';
         ctx.fillRect(0, 0, width, CONFIG.DEADLINE_Y);
 
-        // ✨ Deadline 선 (더 눈에 띄게)
         ctx.beginPath();
         ctx.moveTo(0, CONFIG.DEADLINE_Y);
         ctx.lineTo(width, CONFIG.DEADLINE_Y);
         ctx.strokeStyle = '#FF5252';
         ctx.lineWidth = 2;
-        ctx.setLineDash([8, 4]); // 점선 패턴
+        ctx.setLineDash([8, 4]);
         ctx.stroke();
 
-        // ✨ 텍스트 배경
         ctx.fillStyle = 'rgba(255, 82, 82, 0.9)';
         ctx.fillRect(5, CONFIG.DEADLINE_Y - 18, 70, 16);
 
-        // ✨ 텍스트
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 11px Arial';
         ctx.fillText('DEADLINE', 10, CONFIG.DEADLINE_Y - 7);
     }
 
     generateNextCircle() {
-        // ✨ Special circle 생성 조건 체크
-        const canSpawnSpecial = 
-            this.maxReachedIndex >= CONFIG.SPECIAL.MIN_LEVEL &&  // 최소 레벨 도달
-            this.turnsSinceLastSpecial >= CONFIG.SPECIAL.COOLDOWN_TURNS;  // 쿨다운 완료
+        const canSpawnSpecial =
+            this.maxReachedIndex >= CONFIG.SPECIAL.MIN_LEVEL &&
+            this.turnsSinceLastSpecial >= CONFIG.SPECIAL.COOLDOWN_TURNS;
 
         if (canSpawnSpecial && Math.random() < CONFIG.SPECIAL.PROBABILITY) {
-            // Special circle 생성
             this.nextCircleType = 'special';
             this.nextCircleIndex = 0;
             console.log('✨ Special circle 생성! (턴:', this.totalTurns, ', 최고 레벨:', this.maxReachedIndex, ')');
         } else {
-            // Normal circle 생성 (0, 1, 2 중 랜덤)
             this.nextCircleType = 'normal';
             this.nextCircleIndex = Math.floor(Math.random() * 3);
         }
@@ -186,22 +185,18 @@ export class Game {
     prepareNextTurn() {
         if (this.gameOver) return;
 
-        // Move Next to Current
         this.currentCircleType = this.nextCircleType;
         this.currentCircleIndex = this.nextCircleIndex;
 
-        // ✨ Special circle가 사용되면 쿨다운 초기화
         if (this.currentCircleType === 'special') {
             this.turnsSinceLastSpecial = 0;
         } else {
             this.turnsSinceLastSpecial++;
         }
-        
+
         this.totalTurns++;
 
-        // Generate new Next
         this.generateNextCircle();
-
         this.updateUI();
         this.currentCircleBody = null;
 
@@ -213,12 +208,10 @@ export class Game {
         if (this.currentCircleBody || this.gameOver) return;
 
         let body;
-        // ✨ 스폰 위치를 점수바 아래로 이동 (y=135)
         const spawnY = 135;
-        
+
         if (this.currentCircleType === 'special') {
             body = createSpecialCircle(x, spawnY, true);
-            // ✨ Special circle를 ParticleSystem에 등록
             this.particleSystem.registerSpecialCircle(body);
         } else {
             body = createCircle(x, spawnY, this.currentCircleIndex, true);
@@ -231,13 +224,12 @@ export class Game {
     handleInputMove(x) {
         if (!this.currentCircleBody || !this.currentCircleBody.isStatic) return;
 
-        const container = document.getElementById('game-container'); // Or passed in ctor
+        const container = document.getElementById('game-container');
         const radius = this.currentCircleBody.circleRadius || (this.currentCircleIndex !== undefined ? CIRCLES[this.currentCircleIndex]?.radius : 15);
         const maxX = container.clientWidth - radius;
         const minX = radius;
 
         x = Math.max(minX, Math.min(x, maxX));
-        // ✨ 스폰 위치와 일치 (y=135)
         Body.setPosition(this.currentCircleBody, { x: x, y: 135 });
     }
 
@@ -246,6 +238,7 @@ export class Game {
             this.isDropping = true;
             this.lastDropTime = Date.now();
 
+            this.comboCount = 0;
             Body.setStatic(this.currentCircleBody, false);
             this.currentCircleBody = null;
 
@@ -292,10 +285,8 @@ export class Game {
                 shouldMerge = true;
                 newIndex = bodyA.circleIndex + 1;
             }
-        }
-        else if (bodyA.circleType === 'special' || bodyB.circleType === 'special') {
+        } else if (bodyA.circleType === 'special' || bodyB.circleType === 'special') {
             if (bodyA.circleType === 'special' && bodyB.circleType === 'special') {
-                shouldMerge = false;
                 return;
             } else {
                 const normalBody = bodyA.circleType === 'normal' ? bodyA : bodyB;
@@ -314,12 +305,8 @@ export class Game {
             }
 
             // ✨ Special circle 제거 시 등록 해제
-            if (bodyA.circleType === 'special') {
-                this.particleSystem.unregisterSpecialCircle(bodyA);
-            }
-            if (bodyB.circleType === 'special') {
-                this.particleSystem.unregisterSpecialCircle(bodyB);
-            }
+            if (bodyA.circleType === 'special') this.particleSystem.unregisterSpecialCircle(bodyA);
+            if (bodyB.circleType === 'special') this.particleSystem.unregisterSpecialCircle(bodyB);
 
             World.remove(this.engine.world, [bodyA, bodyB]);
 
@@ -334,8 +321,37 @@ export class Game {
                 this.particleSystem.createWatermelonCelebration(midX, midY);
             }
 
-            this.currentScore += CIRCLES[newIndex].score;
+            // ✨ 콤보 처리
+            const now = Date.now();
+            if (this.comboCount > 0 && now - this.lastMergeTime < CONFIG.COMBO.WINDOW) {
+                // 콤보 연속
+                this.comboCount++;
+            } else {
+                // 새 콤보 시작
+                this.comboCount = 1;
+            }
+            this.lastMergeTime = now;
+
+            // 콤보 리셋 타이머 갱신
+            if (this.comboResetTimer) clearTimeout(this.comboResetTimer);
+            this.comboResetTimer = setTimeout(() => {
+                this.comboCount = 0;
+            }, CONFIG.COMBO.WINDOW);
+
+            // ✨ 콤보 배율 점수 계산
+            const baseScore = CIRCLES[newIndex].score;
+            const multiplier = this.comboCount >= 2
+                ? Math.min(CONFIG.COMBO.MAX_MULTIPLIER, 1 + (this.comboCount - 1) * CONFIG.COMBO.MULTIPLIER_STEP)
+                : 1;
+            const actualScore = Math.floor(baseScore * multiplier);
+
+            this.currentScore += actualScore;
             this.updateUI();
+
+            // ✨ 콤보 2 이상일 때 메시지 표시
+            if (this.comboCount >= 2) {
+                this.particleSystem.showComboMessage(this.comboCount, actualScore, midX, midY);
+            }
 
             const newBody = createCircle(midX, midY, newIndex, false);
             World.add(this.engine.world, newBody);
@@ -349,7 +365,6 @@ export class Game {
         const deltaTime = currentTime - this.lastCheckTime;
         this.lastCheckTime = currentTime;
 
-        // 방금 드롭한 원은 1초 동안 게임오버 체크에서 제외
         const timeSinceLastDrop = currentTime - this.lastDropTime;
         if (timeSinceLastDrop < 1000) {
             this.dangerTimer = 0;
@@ -360,7 +375,7 @@ export class Game {
         let underThreat = false;
 
         for (const body of bodies) {
-            if (!body.isStatic && body.circleRadius !== undefined) {
+            if (!body.isStatic && body.circleRadius) {
                 if (body.position.y - body.circleRadius < CONFIG.DEADLINE_Y && body.speed < 0.5) {
                     underThreat = true;
                     break;
@@ -369,7 +384,7 @@ export class Game {
         }
 
         if (underThreat) {
-            this.dangerTimer += deltaTime;  // 실제 경과 시간 사용
+            this.dangerTimer += deltaTime;
             if (this.dangerTimer > 2000) {
                 this.endGame();
             }
@@ -382,28 +397,33 @@ export class Game {
         UI.updateScoreDisplay(this.currentScore);
         UI.updateNextCirclePreview(this.nextCircleType, this.nextCircleIndex);
         UI.updateScoreBar(this.currentScore);
+        // ✨ 점수 변경마다 배경 체크 (변경 시에만 실제 DOM 조작)
+        UI.updateBackground(this.currentScore);
     }
 
     async endGame() {
         this.gameOver = true;
         this.cleanup();
 
-        // Firebase에 점수 저장
         const { currentUser } = await import('./main.js');
         const { saveScore } = await import('./scoreboard.js');
 
         if (currentUser && currentUser.nickname) {
             try {
                 await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
+                console.log('✅ 점수 저장 완료:', this.currentScore);
             } catch (error) {
+                console.error('❌ 점수 저장 실패:', error);
             }
         }
 
-        // 게임 오버 화면 표시 (스코어보드는 사용자가 선택)
         UI.showGameOver(this.currentScore, () => location.reload());
     }
 
     cleanup() {
+        // ✨ 콤보 타이머 정리
+        if (this.comboResetTimer) clearTimeout(this.comboResetTimer);
+
         if (this.engine) {
             Events.off(this.engine, 'collisionStart', this.collisionHandler);
             Events.off(this.engine, 'afterUpdate', this.gameOverHandler);
@@ -433,23 +453,6 @@ export class Game {
     }
 
     handleResize() {
-
-        if (window.innerWidth > 768) {
-            return;
-        }
-        const newOrientation = this.getOrientation();
-
-        if (this.currentOrientation !== newOrientation) {
-            // Debounce
-            if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
-            this.resizeTimeout = setTimeout(() => {
-                this.cleanup();
-                location.reload();
-            }, 300);
-
-            this.currentOrientation = newOrientation;
-        }
-        // Simple debounce
         if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
         this.resizeTimeout = setTimeout(() => {
             this.cleanup();
@@ -458,7 +461,6 @@ export class Game {
     }
 
     getColorFromImage(imagePath) {
-        // 각 과일별 색상 매핑
         const colorMap = {
             'circle_0_grape.svg': '#8B7DB8',
             'circle_1_strawberry.svg': '#FF6B9D',
