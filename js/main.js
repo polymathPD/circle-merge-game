@@ -5,6 +5,8 @@ import { getTopScores, getUserScores } from './scoreboard.js';
 
 console.log('🔵 main.js 모듈 로드됨!');
 
+const isLocalMode = new URLSearchParams(window.location.search).has('local');
+
 let game = null;
 let currentUser = null;
 
@@ -205,21 +207,27 @@ async function startGame() {
 
 let isGameStarted = false;
 
-onUserStateChange(async (user) => {
-    currentUser = user;
-    updateUserUI(user);
+if (isLocalMode) {
+    loginModal.style.display = 'none';
+    currentUser = { uid: 'local', nickname: '로컬테스트' };
+    updateUserUI(currentUser);
+    isGameStarted = true;
+    startGame();
+} else {
+    onUserStateChange(async (user) => {
+        currentUser = user;
+        updateUserUI(user);
 
-    // 로그인된 사용자가 있고 아직 게임이 시작되지 않았다면
-    if (user && user.nickname && !isGameStarted) {
-        isGameStarted = true;
-        loginModal.style.display = 'none';
-        nicknameModal.style.display = 'none';
-        await startGame();
-    } else if (!user && !isGameStarted) {
-        // 로그인 안 된 경우 로그인 모달 표시
-        loginModal.style.display = 'flex';
-    }
-});
+        if (user && user.nickname && !isGameStarted) {
+            isGameStarted = true;
+            loginModal.style.display = 'none';
+            nicknameModal.style.display = 'none';
+            await startGame();
+        } else if (!user && !isGameStarted) {
+            loginModal.style.display = 'flex';
+        }
+    });
+}
 
 // 초기 로드
 if (document.readyState === 'loading') {
@@ -229,5 +237,4 @@ if (document.readyState === 'loading') {
 } else {
 }
 
-// game 인스턴스를 외부에서 접근 가능하도록 export
-export { game, currentUser };
+export { game, currentUser, isLocalMode };

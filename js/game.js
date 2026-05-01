@@ -405,15 +405,16 @@ export class Game {
         this.gameOver = true;
         this.cleanup();
 
-        const { currentUser } = await import('./main.js');
-        const { saveScore } = await import('./scoreboard.js');
-
-        if (currentUser && currentUser.nickname) {
-            try {
-                await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
-                console.log('✅ 점수 저장 완료:', this.currentScore);
-            } catch (error) {
-                console.error('❌ 점수 저장 실패:', error);
+        const { currentUser, isLocalMode } = await import('./main.js');
+        if (!isLocalMode) {
+            const { saveScore } = await import('./scoreboard.js');
+            if (currentUser && currentUser.nickname) {
+                try {
+                    await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
+                    console.log('✅ 점수 저장 완료:', this.currentScore);
+                } catch (error) {
+                    console.error('❌ 점수 저장 실패:', error);
+                }
             }
         }
 
