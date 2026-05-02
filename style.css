@@ -208,6 +208,19 @@ canvas {
     transition: color 0.5s ease, text-shadow 0.5s ease;
 }
 
+/* ========== 버전 배지 ========== */
+#version-badge {
+    position: absolute;
+    bottom: 76px;
+    right: 8px;
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(150, 150, 150, 0.7);
+    z-index: 102;
+    pointer-events: none;
+    letter-spacing: 0.03em;
+}
+
 /* ========== 하단 진화 범례 ========== */
 #evolution-legend {
     position: absolute;

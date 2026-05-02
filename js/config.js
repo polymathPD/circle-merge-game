@@ -1,3 +1,5 @@
+export const VERSION = 'v1.1.0';
+
 // Game Configuration
 export const CONFIG = {
     WALL_THICKNESS: 50,

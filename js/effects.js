@@ -380,6 +380,7 @@ export class ParticleSystem {
         const delta = Math.min(timestamp - this._lastTimestamp, 50); // 최대 50ms 캡
         this._lastTimestamp = timestamp;
         this.time += delta;
+        this._deltaFactor = delta / 16.667; // 60fps 기준 정규화
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -395,7 +396,7 @@ export class ParticleSystem {
                 p.vy += p.gravity;
             }
 
-            p.life -= 0.02;
+            p.life -= 0.02 * (this._deltaFactor || 1);
             p.alpha = p.life;
 
             if (p.life > 0) {

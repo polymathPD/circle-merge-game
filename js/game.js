@@ -44,6 +44,7 @@ export class Game {
         const legend = document.getElementById('evolution-legend');
 
         UI.initLegend(legend);
+        UI.initVersionBadge();
         // ✨ 배경 오버레이 초기화
         UI.initBackground();
 
@@ -278,6 +279,8 @@ export class Game {
 
     attemptMerge(bodyA, bodyB) {
         if (bodyA.toRemove || bodyB.toRemove) return;
+        // 아직 들고 있는(static) 원은 합체 대상에서 제외
+        if (bodyA.isStatic || bodyB.isStatic) return;
         let shouldMerge = false;
         let newIndex = -1;
 

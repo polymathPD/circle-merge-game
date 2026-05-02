@@ -1,4 +1,16 @@
-import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE, BACKGROUNDS } from './config.js';
+import { CONFIG, CIRCLES, SPECIAL_CIRCLE_IMAGE, BACKGROUNDS, VERSION } from './config.js';
+
+export function initVersionBadge() {
+    const existing = document.getElementById('version-badge');
+    if (existing) existing.remove();
+
+    const badge = document.createElement('div');
+    badge.id = 'version-badge';
+    badge.textContent = VERSION;
+
+    const container = document.getElementById('game-container');
+    if (container) container.appendChild(badge);
+}
 
 export function initLegend(container) {
     container.innerHTML = '';

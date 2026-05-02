@@ -9,6 +9,7 @@ const isLocalMode = new URLSearchParams(window.location.search).has('local');
 
 let game = null;
 let currentUser = null;
+let isGameStarted = false;
 
 // UI 요소들
 const loginModal = document.getElementById('login-modal');
@@ -209,8 +210,6 @@ async function startGame() {
         loadingDiv.style.color = 'red';
     }
 }
-
-let isGameStarted = false;
 
 if (isLocalMode) {
     loginModal.style.display = 'none';
