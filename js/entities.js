@@ -6,7 +6,7 @@ export function createCircle(x, y, index, isStatic) {
     // Safety check for index
     const config = CIRCLES[index] || CIRCLES[CIRCLES.length - 1];
 
-    const density = 0.001 + (index * 0.0005);
+    const density = 0.001 + (index * index * 0.0004);
 
     const restitutionMultiplier = index < 3 ? 0.35 : 1.0;
     const restitution = CONFIG.PHYSICS.restitution * restitutionMultiplier;
