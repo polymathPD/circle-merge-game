@@ -389,11 +389,12 @@ export class ParticleSystem {
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
 
-            p.x += p.vx;
-            p.y += p.vy;
+            const df = this._deltaFactor || 1;
+            p.x += p.vx * df;
+            p.y += p.vy * df;
 
             if (p.gravity) {
-                p.vy += p.gravity;
+                p.vy += p.gravity * df;
             }
 
             p.life -= 0.02 * (this._deltaFactor || 1);

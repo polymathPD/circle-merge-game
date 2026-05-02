@@ -233,12 +233,4 @@ if (isLocalMode) {
     });
 }
 
-// 초기 로드
-if (document.readyState === 'loading') {
-    console.log('⏳ DOM 로딩 대기 중...');
-    document.addEventListener('DOMContentLoaded', () => {
-    });
-} else {
-}
-
 export { game, currentUser, isLocalMode };

@@ -240,6 +240,7 @@ export class Game {
             this.lastDropTime = Date.now();
 
             this.comboCount = 0;
+            this.lastMergeTime = 0;
             Body.setStatic(this.currentCircleBody, false);
             this.currentCircleBody = null;
 

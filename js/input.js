@@ -12,34 +12,32 @@ export class InputHandler {
     }
 
     initListeners() {
-        // Mouse move - circle always follows cursor (no click required)
-        this.container.addEventListener('mousemove', e => {
+        this._onMouseMove = e => {
             if (this.isTouching) return;
             this.handleMove(e.offsetX);
-        });
-
-        // Mouse click - drop on press
-        this.container.addEventListener('mousedown', e => {
+        };
+        this._onMouseDown = e => {
             if (this.isTouching) return;
             this.handleMove(e.offsetX);
             if (this.onDrop) this.onDrop();
-        });
-
-        // Touch
-        this.container.addEventListener('touchstart', e => {
+        };
+        this._onTouchStart = e => {
             e.preventDefault();
             this.isTouching = true;
             const x = this.getTouchX(e);
             this.handleMove(x);
-        }, { passive: false });
-
-        this.container.addEventListener('touchmove', e => {
+        };
+        this._onTouchMove = e => {
             e.preventDefault();
             if (!this.isTouching) return;
             const x = this.getTouchX(e);
             this.handleMove(x);
-        }, { passive: false });
+        };
 
+        this.container.addEventListener('mousemove', this._onMouseMove);
+        this.container.addEventListener('mousedown', this._onMouseDown);
+        this.container.addEventListener('touchstart', this._onTouchStart, { passive: false });
+        this.container.addEventListener('touchmove', this._onTouchMove, { passive: false });
         window.addEventListener('touchend', this.handleTouchEnd);
     }
 
@@ -59,6 +57,10 @@ export class InputHandler {
     }
 
     destroy() {
+        this.container.removeEventListener('mousemove', this._onMouseMove);
+        this.container.removeEventListener('mousedown', this._onMouseDown);
+        this.container.removeEventListener('touchstart', this._onTouchStart);
+        this.container.removeEventListener('touchmove', this._onTouchMove);
         window.removeEventListener('touchend', this.handleTouchEnd);
     }
 }
