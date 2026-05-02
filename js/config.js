@@ -1,4 +1,4 @@
-export const VERSION = 'v1.2.0';
+export const VERSION = 'v1.3.0';
 
 // Game Configuration
 export const CONFIG = {

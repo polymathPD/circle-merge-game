@@ -43,6 +43,31 @@ export function initLegend(container) {
     });
 }
 
+export function updateHoldDisplay(holdType, holdIndex, hasUsedHold) {
+    const preview = document.getElementById('hold-circle-preview');
+    const container = document.getElementById('hold-container');
+    if (!preview || !container) return;
+
+    if (holdType === 'special') {
+        preview.style.backgroundImage = `url('${SPECIAL_CIRCLE_IMAGE}')`;
+        preview.style.backgroundSize = 'contain';
+        preview.style.backgroundRepeat = 'no-repeat';
+        preview.style.backgroundPosition = 'center';
+        preview.style.backgroundColor = '';
+    } else if (holdType === 'normal' && CIRCLES[holdIndex]) {
+        preview.style.backgroundImage = `url('${CIRCLES[holdIndex].image}')`;
+        preview.style.backgroundSize = 'contain';
+        preview.style.backgroundRepeat = 'no-repeat';
+        preview.style.backgroundPosition = 'center';
+        preview.style.backgroundColor = '';
+    } else {
+        preview.style.backgroundImage = '';
+        preview.style.backgroundColor = 'rgba(0, 0, 0, 0.08)';
+    }
+
+    container.classList.toggle('hold--used', hasUsedHold);
+}
+
 export function updateNextCirclePreview(nextCircleType, nextCircleIndex) {
     const nextPreview = document.getElementById('next-circle-preview');
     if (!nextPreview) return;

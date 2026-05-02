@@ -34,9 +34,17 @@ export class Game {
         this.totalTurns = 0;
 
         // ✨ 콤보 시스템 변수
-        this.comboCount = 0;          // 현재 콤보 횟수
-        this.comboResetTimer = null;  // 콤보 리셋 타이머
-        this.lastMergeTime = 0;       // 마지막 합체 시각
+        this.comboCount = 0;
+        this.comboResetTimer = null;
+        this.lastMergeTime = 0;
+
+        // ✨ 홀드 시스템 변수
+        this.holdCircleIndex = null;
+        this.holdCircleType = null;
+        this.hasUsedHold = false;
+
+        // ✨ afterRender 핸들러
+        this.trajectoryHandler = () => this.drawTrajectory();
     }
 
     init() {
@@ -97,6 +105,7 @@ export class Game {
         Events.on(this.engine, 'collisionStart', this.collisionHandler);
         Events.on(this.engine, 'afterUpdate', this.gameOverHandler);
         Events.on(this.render, 'afterRender', this.deadlineHandler);
+        Events.on(this.render, 'afterRender', this.trajectoryHandler);
 
         // Run
         this.runner = Runner.create();
@@ -108,6 +117,17 @@ export class Game {
             onMove: (x) => this.handleInputMove(x),
             onDrop: () => this.handleInputDrop()
         });
+
+        // Hold button — touchstart/mousedown must stopPropagation to prevent drop trigger
+        const holdEl = document.getElementById('hold-container');
+        if (holdEl) {
+            this._onHoldTouchStart = (e) => { e.preventDefault(); e.stopPropagation(); };
+            this._onHoldTouchEnd   = (e) => { e.preventDefault(); e.stopPropagation(); this.handleHold(); };
+            this._onHoldMouseDown  = (e) => { e.stopPropagation(); this.handleHold(); };
+            holdEl.addEventListener('touchstart', this._onHoldTouchStart, { passive: false });
+            holdEl.addEventListener('touchend',   this._onHoldTouchEnd);
+            holdEl.addEventListener('mousedown',  this._onHoldMouseDown);
+        }
 
         // Start
         this.generateNextCircle();
@@ -144,25 +164,100 @@ export class Game {
         World.add(this.engine.world, [floor, leftWall, rightWall]);
     }
 
+    handleHold() {
+        if (this.hasUsedHold || this.gameOver || this.isDropping) return;
+        if (!this.currentCircleBody || !this.currentCircleBody.isStatic) return;
+
+        if (this.currentCircleType === 'special') {
+            this.particleSystem.unregisterSpecialCircle(this.currentCircleBody);
+        }
+        World.remove(this.engine.world, this.currentCircleBody);
+        this.currentCircleBody = null;
+
+        const prevType  = this.holdCircleType;
+        const prevIndex = this.holdCircleIndex;
+
+        this.holdCircleType  = this.currentCircleType;
+        this.holdCircleIndex = this.currentCircleIndex;
+
+        if (prevType !== null) {
+            this.currentCircleType  = prevType;
+            this.currentCircleIndex = prevIndex;
+        } else {
+            this.currentCircleType  = this.nextCircleType;
+            this.currentCircleIndex = this.nextCircleIndex;
+            this.generateNextCircle();
+        }
+
+        this.hasUsedHold = true;
+        this.updateUI();
+
+        const container = document.getElementById('game-container');
+        this.spawnCurrentCircle(container.clientWidth / 2);
+    }
+
+    drawTrajectory() {
+        if (!this.currentCircleBody || !this.render.context) return;
+        if (!this.currentCircleBody.isStatic) return;
+
+        const ctx    = this.render.context;
+        const body   = this.currentCircleBody;
+        const x      = body.position.x;
+        const radius = body.circleRadius;
+        const fromY  = body.position.y + radius;
+        const floorY = this.render.options.height - 10 - radius;
+        let landY    = floorY;
+
+        const bodies = Composite.allBodies(this.engine.world);
+        for (const b of bodies) {
+            if (b === body || b.isStatic || !b.circleRadius) continue;
+            if (Math.abs(b.position.x - x) < b.circleRadius + radius) {
+                const cy = b.position.y - b.circleRadius - radius;
+                if (cy > fromY && cy < landY) landY = cy;
+            }
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x, fromY);
+        ctx.lineTo(x, landY);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 8]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(x, landY, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+    }
+
     drawDeadline() {
         if (!this.render.context) return;
         const ctx = this.render.context;
         const width = this.render.canvas.width;
+        const dangerRatio = Math.min(1, this.dangerTimer / 2000);
+        const pulse = dangerRatio > 0
+            ? Math.abs(Math.sin(Date.now() * 0.006)) * 0.08 * dangerRatio
+            : 0;
 
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.05)';
+        ctx.fillStyle = `rgba(255, 0, 0, ${0.05 + dangerRatio * 0.12 + pulse})`;
         ctx.fillRect(0, 0, width, CONFIG.DEADLINE_Y);
 
         ctx.beginPath();
         ctx.moveTo(0, CONFIG.DEADLINE_Y);
         ctx.lineTo(width, CONFIG.DEADLINE_Y);
         ctx.strokeStyle = '#FF5252';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 + dangerRatio * 2;
         ctx.setLineDash([8, 4]);
         ctx.stroke();
+        ctx.setLineDash([]);
 
         ctx.fillStyle = 'rgba(255, 82, 82, 0.9)';
         ctx.fillRect(5, CONFIG.DEADLINE_Y - 18, 70, 16);
-
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 11px Arial';
         ctx.fillText('DEADLINE', 10, CONFIG.DEADLINE_Y - 7);
@@ -186,6 +281,7 @@ export class Game {
     prepareNextTurn() {
         if (this.gameOver) return;
 
+        this.hasUsedHold = false;
         this.currentCircleType = this.nextCircleType;
         this.currentCircleIndex = this.nextCircleIndex;
 
@@ -410,8 +506,8 @@ export class Game {
     updateUI() {
         UI.updateScoreDisplay(this.currentScore);
         UI.updateNextCirclePreview(this.nextCircleType, this.nextCircleIndex);
+        UI.updateHoldDisplay(this.holdCircleType, this.holdCircleIndex, this.hasUsedHold);
         UI.updateScoreBar(this.currentScore);
-        // ✨ 점수 변경마다 배경 체크 (변경 시에만 실제 DOM 조작)
         UI.updateBackground(this.currentScore);
     }
 
@@ -438,7 +534,6 @@ export class Game {
     }
 
     cleanup() {
-        // ✨ 콤보 타이머 정리
         if (this.comboResetTimer) clearTimeout(this.comboResetTimer);
 
         if (this.engine) {
@@ -447,6 +542,15 @@ export class Game {
         }
         if (this.render) {
             Events.off(this.render, 'afterRender', this.deadlineHandler);
+            Events.off(this.render, 'afterRender', this.trajectoryHandler);
+        }
+
+        // Hold button listeners
+        const holdEl = document.getElementById('hold-container');
+        if (holdEl && this._onHoldTouchStart) {
+            holdEl.removeEventListener('touchstart', this._onHoldTouchStart);
+            holdEl.removeEventListener('touchend',   this._onHoldTouchEnd);
+            holdEl.removeEventListener('mousedown',  this._onHoldMouseDown);
         }
 
         if (this.engine) {
