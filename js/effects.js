@@ -373,10 +373,13 @@ export class ParticleSystem {
         setTimeout(() => msg.remove(), 1000);
     }
 
-    animate() {
+    animate(timestamp = 0) {
         if (!this.ctx) return;
 
-        this.time += 16;
+        if (this._lastTimestamp === undefined) this._lastTimestamp = timestamp;
+        const delta = Math.min(timestamp - this._lastTimestamp, 50); // 최대 50ms 캡
+        this._lastTimestamp = timestamp;
+        this.time += delta;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -407,7 +410,7 @@ export class ParticleSystem {
             }
         }
 
-        this.animationFrame = requestAnimationFrame(() => this.animate());
+        this.animationFrame = requestAnimationFrame((ts) => this.animate(ts));
     }
 
     destroy() {

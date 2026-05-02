@@ -5,27 +5,24 @@ export class InputHandler {
         this.onDrop = callbacks.onDrop;
 
         this.isTouching = false;
-        this.isMouseDown = false;
 
-        this.handleMouseUp = this.handleMouseUp.bind(this);
         this.handleTouchEnd = this.handleTouchEnd.bind(this);
 
         this.initListeners();
     }
 
     initListeners() {
-        // Mouse
-        this.container.addEventListener('mousedown', e => {
+        // Mouse move - circle always follows cursor (no click required)
+        this.container.addEventListener('mousemove', e => {
             if (this.isTouching) return;
-            this.isMouseDown = true;
             this.handleMove(e.offsetX);
         });
 
-        this.container.addEventListener('mousemove', e => {
+        // Mouse click - drop on press
+        this.container.addEventListener('mousedown', e => {
             if (this.isTouching) return;
-            if (this.isMouseDown) {
-                this.handleMove(e.offsetX);
-            }
+            this.handleMove(e.offsetX);
+            if (this.onDrop) this.onDrop();
         });
 
         // Touch
@@ -43,16 +40,7 @@ export class InputHandler {
             this.handleMove(x);
         }, { passive: false });
 
-        window.addEventListener('mouseup', this.handleMouseUp);
         window.addEventListener('touchend', this.handleTouchEnd);
-    }
-
-    handleMouseUp(e) {
-        if (this.isTouching) return;
-        if (this.isMouseDown) {
-            this.isMouseDown = false;
-            if (this.onDrop) this.onDrop();
-        }
     }
 
     handleTouchEnd(e) {
@@ -71,7 +59,6 @@ export class InputHandler {
     }
 
     destroy() {
-        window.removeEventListener('mouseup', this.handleMouseUp);
         window.removeEventListener('touchend', this.handleTouchEnd);
     }
 }

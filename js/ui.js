@@ -157,7 +157,7 @@ function _showBackgroundLabel(label) {
     setTimeout(() => el.remove(), 2500);
 }
 
-export function showGameOver(score, onRestart) {
+export function showGameOver(score, onRestart, isSaved = false) {
     const overlay = document.createElement('div');
     overlay.id = 'game-over-overlay';
     overlay.style.cssText = `
@@ -189,7 +189,7 @@ export function showGameOver(score, onRestart) {
         <div style="font-size: 48px; font-weight: bold; color: #4CAF50; margin: 20px 0;">
             ${score.toLocaleString()}
         </div>
-        <p style="color: #666; margin-bottom: 20px;">점수가 저장되었습니다!</p>
+        ${isSaved ? '<p style="color: #666; margin-bottom: 20px;">점수가 저장되었습니다!</p>' : ''}
         <button id="view-scoreboard-btn" style="
             width: 100%;
             padding: 15px;

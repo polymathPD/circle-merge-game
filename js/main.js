@@ -182,6 +182,11 @@ async function loadScoreboard(tab) {
 
 // 게임 시작
 async function startGame() {
+    if (game) {
+        game.cleanup();
+        game = null;
+    }
+
     // 로딩 화면 표시
     const loadingDiv = document.createElement('div');
     loadingDiv.id = 'loading';

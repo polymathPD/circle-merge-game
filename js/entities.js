@@ -53,7 +53,10 @@ export function createSpecialCircle(x, y, isStatic) {
             strokeStyle: '#FFA500',
             lineWidth: 2
         },
-        restitution: Math.min(1.0, CONFIG.PHYSICS.restitution + 0.2)
+        restitution: Math.min(1.0, CONFIG.PHYSICS.restitution + 0.2),
+        friction: 0.15,
+        frictionAir: 0.01,
+        density: 0.0015
     });
 
     body.circleIndex = 0; // Dummy index

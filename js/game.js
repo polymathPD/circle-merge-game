@@ -208,7 +208,7 @@ export class Game {
         if (this.currentCircleBody || this.gameOver) return;
 
         let body;
-        const spawnY = 135;
+        const spawnY = CONFIG.SPAWN_Y;
 
         if (this.currentCircleType === 'special') {
             body = createSpecialCircle(x, spawnY, true);
@@ -230,7 +230,7 @@ export class Game {
         const minX = radius;
 
         x = Math.max(minX, Math.min(x, maxX));
-        Body.setPosition(this.currentCircleBody, { x: x, y: 135 });
+        Body.setPosition(this.currentCircleBody, { x: x, y: CONFIG.SPAWN_Y });
     }
 
     handleInputDrop() {
@@ -257,13 +257,14 @@ export class Game {
         const pairs = event.pairs;
         const processed = new Set();
 
+        const worldBodySet = new Set(Composite.allBodies(this.engine.world));
+
         for (let i = 0; i < pairs.length; i++) {
             const pair = pairs[i];
             const bodyA = pair.bodyA;
             const bodyB = pair.bodyB;
 
-            const worldBodies = Composite.allBodies(this.engine.world);
-            if (!worldBodies.includes(bodyA) || !worldBodies.includes(bodyB)) continue;
+            if (!worldBodySet.has(bodyA) || !worldBodySet.has(bodyB)) continue;
 
             const pairKey = `${Math.min(bodyA.id, bodyB.id)}-${Math.max(bodyA.id, bodyB.id)}`;
             if (processed.has(pairKey)) continue;
@@ -308,6 +309,8 @@ export class Game {
             if (bodyA.circleType === 'special') this.particleSystem.unregisterSpecialCircle(bodyA);
             if (bodyB.circleType === 'special') this.particleSystem.unregisterSpecialCircle(bodyB);
 
+            bodyA.toRemove = true;
+            bodyB.toRemove = true;
             World.remove(this.engine.world, [bodyA, bodyB]);
 
             const midX = (bodyA.position.x + bodyB.position.x) / 2;
@@ -371,6 +374,13 @@ export class Game {
             return;
         }
 
+        // Grace period after merge — new circle needs time to settle in physics
+        const timeSinceLastMerge = currentTime - this.lastMergeTime;
+        if (this.lastMergeTime > 0 && timeSinceLastMerge < 1500) {
+            this.dangerTimer = 0;
+            return;
+        }
+
         const bodies = Composite.allBodies(this.engine.world);
         let underThreat = false;
 
@@ -405,12 +415,14 @@ export class Game {
         this.gameOver = true;
         this.cleanup();
 
+        let scoreSaved = false;
         const { currentUser, isLocalMode } = await import('./main.js');
         if (!isLocalMode) {
             const { saveScore } = await import('./scoreboard.js');
             if (currentUser && currentUser.nickname) {
                 try {
                     await saveScore(currentUser.uid, currentUser.nickname, this.currentScore);
+                    scoreSaved = true;
                     console.log('✅ 점수 저장 완료:', this.currentScore);
                 } catch (error) {
                     console.error('❌ 점수 저장 실패:', error);
@@ -418,7 +430,7 @@ export class Game {
             }
         }
 
-        UI.showGameOver(this.currentScore, () => location.reload());
+        UI.showGameOver(this.currentScore, () => location.reload(), scoreSaved);
     }
 
     cleanup() {
