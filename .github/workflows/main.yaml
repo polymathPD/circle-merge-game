@@ -43,10 +43,13 @@ jobs:
       - name: Notify Slack
         if: always()
         run: |
+          COMMIT_SHORT="${{ github.sha }}"
+          COMMIT_SHORT="${COMMIT_SHORT:0:7}"
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
           if [ "${{ job.status }}" = "success" ]; then
-            TEXT="✅ circle-merge-game 배포 완료\n${{ steps.deployment.outputs.page_url }}"
+            TEXT="✅ circle-merge-game 배포 완료\n\`${COMMIT_SHORT}\` ${COMMIT_MSG}\n${{ steps.deployment.outputs.page_url }}"
           else
-            TEXT="❌ circle-merge-game 배포 실패"
+            TEXT="❌ circle-merge-game 배포 실패\n\`${COMMIT_SHORT}\` ${COMMIT_MSG}"
           fi
           curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H 'Content-type: application/json' \
