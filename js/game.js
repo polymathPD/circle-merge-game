@@ -37,6 +37,8 @@ export class Game {
         this.comboCount = 0;
         this.comboResetTimer = null;
         this.lastMergeTime = 0;
+        this.dropId = 0;
+        this.comboDropId = -1;
 
         // ✨ 홀드 시스템 변수
         this.holdCircleIndex = null;
@@ -45,6 +47,13 @@ export class Game {
 
         // ✨ afterRender 핸들러
         this.trajectoryHandler = () => this.drawTrajectory();
+
+        window.__gameState = {
+            score: 0,
+            comboState: { count: 0, lastMergeTime: 0 },
+            mergeLog: [],
+            dropLog: [],
+        };
     }
 
     init() {
@@ -335,8 +344,13 @@ export class Game {
             this.isDropping = true;
             this.lastDropTime = Date.now();
 
+            this.dropId++;
+            this.currentCircleBody.dropId = this.dropId;
             this.comboCount = 0;
+            this.comboDropId = -1;
             this.lastMergeTime = 0;
+            if (this.comboResetTimer) { clearTimeout(this.comboResetTimer); this.comboResetTimer = null; }
+            window.__gameState.dropLog.push({ timestamp: Date.now(), dropId: this.dropId });
             Body.setStatic(this.currentCircleBody, false);
             this.currentCircleBody = null;
 
@@ -424,21 +438,23 @@ export class Game {
                 this.particleSystem.createWatermelonCelebration(midX, midY);
             }
 
-            // ✨ 콤보 처리
+            // ✨ 콤보 처리 — dropId가 같은 드롭 세션의 합체만 콤보로 인정
+            const mergeDropId = Math.max(bodyA.dropId ?? 0, bodyB.dropId ?? 0);
             const now = Date.now();
-            if (this.comboCount > 0 && now - this.lastMergeTime < CONFIG.COMBO.WINDOW) {
-                // 콤보 연속
+            if (this.comboCount > 0 &&
+                now - this.lastMergeTime < CONFIG.COMBO.WINDOW &&
+                mergeDropId === this.comboDropId) {
                 this.comboCount++;
             } else {
-                // 새 콤보 시작
                 this.comboCount = 1;
+                this.comboDropId = mergeDropId;
             }
             this.lastMergeTime = now;
 
-            // 콤보 리셋 타이머 갱신
             if (this.comboResetTimer) clearTimeout(this.comboResetTimer);
             this.comboResetTimer = setTimeout(() => {
                 this.comboCount = 0;
+                this.comboDropId = -1;
             }, CONFIG.COMBO.WINDOW);
 
             // ✨ 콤보 배율 점수 계산
@@ -449,6 +465,17 @@ export class Game {
             const actualScore = Math.floor(baseScore * multiplier);
 
             this.currentScore += actualScore;
+            window.__gameState.score = this.currentScore;
+            window.__gameState.comboState = { count: this.comboCount, lastMergeTime: this.lastMergeTime };
+            window.__gameState.mergeLog.push({
+                timestamp: this.lastMergeTime,
+                fromIndex: bodyA.circleIndex ?? bodyB.circleIndex,
+                toIndex: newIndex,
+                comboCount: this.comboCount,
+                comboDropId: this.comboDropId,
+                scoreAdded: actualScore,
+                position: { x: Math.round(midX), y: Math.round(midY) },
+            });
             this.updateUI();
 
             // ✨ 콤보 2 이상일 때 메시지 표시
@@ -457,6 +484,7 @@ export class Game {
             }
 
             const newBody = createCircle(midX, midY, newIndex, false);
+            newBody.dropId = mergeDropId;
             World.add(this.engine.world, newBody);
         }
     }
